@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>结构化证据工程平台 · 证据链与原文回溯</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef4ea;
+            font-family: 'Inter', sans-serif;
+            padding: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 主应用容器 */
+        .app-container {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 32, 0, 0.15), 0 0 0 1px rgba(0, 80, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 24px 32px 16px 32px;
+            border-bottom: 1px solid #e9f0e9;
+        }
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .title-row h1 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #1C3B1C;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge {
+            background: #eef5ee;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #2C5E2C;
+            font-weight: 500;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #fafdfa;
+            border: 1px solid #ddebe0;
+            border-radius: 44px;
+            padding: 8px 18px;
+            gap: 12px;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            color: #588157;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .btn-primary:hover {
+            background: #1f6423;
+        }
+        .btn-secondary {
+            background: white;
+            border: 1px solid #cfe3cf;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: #2C5E2C;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* 表格区域 */
+        .table-wrapper {
+            padding: 0 32px 24px 32px;
+            overflow-x: auto;
+        }
+
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .evidence-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #F9FEF9;
+            color: #2C5E2C;
+            font-weight: 600;
+            border-bottom: 2px solid #e2f0e2;
+        }
+
+        .evidence-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #edf4ed;
+            vertical-align: middle;
+            color: #1F2A1F;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: #a6c9a6;
+            font-size: 1.2rem;
+        }
+
+        .inline-badge {
+            background: #eef5ee;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            color: #2C5E2C;
+            font-weight: 500;
+        }
+
+        .outcome-value {
+            background: #F9FEF9;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            display: inline-block;
+            border: 1px solid #e0f0e0;
+            margin-right: 6px;
+        }
+
+        .action-icons i {
+            margin: 0 6px;
+            cursor: pointer;
+            color: #7e9e7e;
+            transition: 0.1s;
+        }
+        .action-icons i:hover {
+            color: #2E7D32;
+        }
+
+        .footer-note {
+            background: #fafdfa;
+            margin: 0 32px 24px 32px;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            color: #4b6b4b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e1ede1;
+        }
+
+        /* 模态框 (原文回溯) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 45, 30, 0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-card {
+            width: 720px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 25px 40px -12px rgba(0, 32, 0, 0.4);
+            overflow: hidden;
+            transform: scale(0.98);
+            transition: transform 0.2s;
+        }
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 22px 28px 12px 28px;
+            border-bottom: 1px solid #e9f0e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #1C3B1C;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .close-modal {
+            background: #f0f7f0;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #547854;
+        }
+        .modal-content {
+            padding: 20px 28px 28px 28px;
+        }
+        .meta-row {
+            background: #F9FEF9;
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            border: 1px solid #e2f0e2;
+        }
+        .highlight-block {
+            background: #FEFCE8;
+            border-left: 5px solid #2E7D32;
+            padding: 20px 24px;
+            border-radius: 20px;
+            margin: 20px 0;
+            line-height: 1.55;
+            color: #1C2A1C;
+        }
+        .highlight-text {
+            background: #DCFCE7;
+            padding: 2px 4px;
+            font-weight: 600;
+            color: #145214;
+            border-radius: 8px;
+        }
+        .pdf-preview {
+            background: #f9fdf9;
+            border-radius: 20px;
+            border: 1px solid #dbead9;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .modal-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+        .btn-outline {
+            border: 1px solid #cfe3cf;
+            background: white;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-green {
+            background: #2E7D32;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .table-wrapper { padding: 0 16px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <div class="title-row">
+            <h1><i class="fas fa-link"></i> 结构化证据链 · 可编辑模式</h1>
+            <div class="badge"><i class="fas fa-pen-ruler"></i> 拖拽排序 · 实时修改 · 原文回溯</div>
+        </div>
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="在证据链中快速筛选文献 / 疗效指标..." id="searchInput">
+            </div>
+            <div>
+                <button class="btn-secondary" id="addRowBtn"><i class="fas fa-plus-circle"></i> 新增证据行</button>
+                <button class="btn-primary" id="confirmChainBtn"><i class="fas fa-check-circle"></i> 确认证据链</button>
+            </div>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table class="evidence-table" id="evidenceTable">
+            <thead>
+                <tr>
+                    <th style="width: 30px"></th>
+                    <th>文献ID</th><th>证型</th><th>干预措施</th><th>疗效指标（关键数值）</th><th>研究类型</th>
+                    <th style="width: 110px">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- 动态js渲染 -->
+            </tbody>
+        </table>
+    </div>
+    <div class="footer-note">
+        <i class="fas fa-arrows-alt"></i> 拖拽行左侧手柄可调整证据顺序 · 点击 <i class="fas fa-eye"></i> 回溯原文 · 支持增删改
+        <span style="margin-left: auto; font-weight: 500;"><i class="fas fa-check-circle" style="color:#2E7D32;"></i> 人机协同 · 证据由您掌控</span>
+    </div>
+</div>
+
+<!-- 模态框：原文回溯 -->
+<div id="originModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-alt"></i> <span id="modalTitle">原文回溯</span></h3>
+            <div class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></div>
+        </div>
+        <div class="modal-content" id="modalContent">
+            <!-- 动态填充文献详情 -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 模拟初始证据数据 ----------
+    let evidenceData = [
+        { id: "RCT-01", syndrome: "气虚痰瘀证", intervention: "益气活血方 (补阳还五汤加减)", outcomes: "NIHSS ↓3.2分; Barthel ↑18分", studyType: "RCT", 
+          fullTitle: "补阳还五汤治疗缺血性卒中恢复期气虚痰瘀证的随机对照研究", journal: "中国中西医结合杂志 · 2024",
+          highlightParagraph: "“治疗后观察组<span class='highlight-text'>NIHSS评分较对照组降低3.2分 (P<0.01)</span>，Barthel指数提高18分。中医证候积分显著改善，<span class='highlight-text'>总有效率达89.2%</span>，明显优于对照组的71.4%。提示益气活血法可促进神经功能恢复。”",
+          pdfPage: "第6页 / 右栏第2段" },
+        { id: "RCT-02", syndrome: "气虚血瘀证", intervention: "脑心通胶囊 + 基础治疗", outcomes: "中医证候积分 ↓6.2; 血浆黏度降低15%", studyType: "RCT",
+          fullTitle: "脑心通胶囊对缺血性脑卒中气虚血瘀证患者的随机对照研究", journal: "中华中医药杂志 · 2023",
+          highlightParagraph: "“观察组中医证候积分下降幅度优于对照组(6.2 vs 3.1)，<span class='highlight-text'>血浆黏度降低15.3%</span>，差异有统计学意义。且未增加不良事件。”",
+          pdfPage: "第9页 / 结果部分" },
+        { id: "SysRev-03", syndrome: "气虚痰瘀证", intervention: "醒脑开窍针法", outcomes: "总有效率 OR=2.34 (95%CI 1.52-3.20)", studyType: "系统综述",
+          fullTitle: "醒脑开窍针法治疗缺血性卒中恢复期疗效的Meta分析", journal: "中国针灸 · 2025",
+          highlightParagraph: "“合并分析显示，与常规治疗相比，针法组总有效率提高 <span class='highlight-text'>OR=2.34 (1.52-3.20)</span>，神经功能缺损评分显著降低。”",
+          pdfPage: "第12页 / 森林图描述" },
+        { id: "观察-04", syndrome: "风痰阻络证", intervention: "化痰通络汤 + 康复", outcomes: "Fugl-Meyer ↑15.2; mRS改善率42%", studyType: "队列研究",
+          fullTitle: "化痰通络汤对风痰阻络证脑卒中患者运动功能的前瞻性队列研究", journal: "中医脑病杂志 · 2024",
+          highlightParagraph: "“6个月随访显示，加减通络汤组 <span class='highlight-text'>Fugl-Meyer评分提高15.2分</span>，mRS 0-2分比例42%优于对照组28%。”",
+          pdfPage: "第5页 / 表格2" }
+    ];
+
+    // 渲染表格 (支持拖拽排序，但不实现完整拖拽库，但提供手柄示意；交互演示核心为查看原文弹窗)
+    let currentData = [...evidenceData];
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        currentData.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-idx', idx);
+            // 拖拽手柄占位 - 允许视觉反馈，实际拖拽排序简易演示(用简单html5拖拽可做，为确保稳定性，仅做样式)
+            tr.innerHTML = `
+                <td class="drag-handle" draggable="false" style="cursor:grab;"><i class="fas fa-grip-vertical"></i></td>
+                <td><span class="inline-badge">${escapeHtml(item.id)}</span></td>
+                <td>${escapeHtml(item.syndrome)}</td>
+                <td>${escapeHtml(item.intervention)}</td>
+                <td><span class="outcome-value">${escapeHtml(item.outcomes)}</span> <i class="fas fa-pencil-alt edit-icon" style="margin-left:6px; cursor:pointer; color:#7e9e7e;" data-idx="${idx}" data-field="outcomes" title="编辑疗效指标"></i></td>
+                <td>${escapeHtml(item.studyType)}</td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" data-idx="${idx}" title="回溯原文" style="cursor:pointer;"></i>
+                    <i class="fas fa-edit" data-idx="${idx}" title="编辑行" style="cursor:pointer;"></i>
+                    <i class="fas fa-trash-alt" data-idx="${idx}" title="删除证据" style="cursor:pointer;"></i>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        // 绑定行内事件
+        document.querySelectorAll('.fa-eye').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const idx = parseInt(icon.getAttribute('data-idx'));
+                if (!isNaN(idx)) openModal(idx);
+            });
+        });
+        document.querySelectorAll('.fa-trash-alt').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const idx = parseInt(icon.getAttribute('data-idx'));
+                if (confirm('确定要删除该证据单元吗？')) {
+                    currentData.splice(idx, 1);
+                    renderTable();
+                }
+            });
+        });
+        document.querySelectorAll('.fa-edit').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const idx = parseInt(icon.getAttribute('data-idx'));
+                const newVal = prompt("编辑该行疗效指标（可修改数值）:", currentData[idx].outcomes);
+                if (newVal !== null) {
+                    currentData[idx].outcomes = newVal;
+                    renderTable();
+                }
+            });
+        });
+        // 内联 edit-icon 编辑疗效指标
+        document.querySelectorAll('.edit-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const idx = parseInt(icon.getAttribute('data-idx'));
+                const newVal = prompt("编辑疗效指标数值:", currentData[idx].outcomes);
+                if (newVal !== null) {
+                    currentData[idx].outcomes = newVal;
+                    renderTable();
+                }
+            });
+        });
+    }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // 打开模态框（原文回溯）
+    function openModal(idx) {
+        const item = currentData[idx];
+        if (!item) return;
+        document.getElementById('modalTitle').innerHTML = `原文回溯 · 文献 ${escapeHtml(item.id)}`;
+        const modalContentDiv = document.getElementById('modalContent');
+        modalContentDiv.innerHTML = `
+            <div class="meta-row">
+                <div><i class="fas fa-book-open"></i> ${escapeHtml(item.fullTitle)}</div>
+                <div><i class="fas fa-calendar-alt"></i> ${escapeHtml(item.journal)}</div>
+            </div>
+            <div class="highlight-block">
+                <i class="fas fa-quote-left" style="color:#2E7D32; opacity:0.6; margin-right: 8px;"></i>
+                <strong>原文节选 (高亮显示证据行对应内容)</strong><br><br>
+                ${item.highlightParagraph}
+            </div>
+            <div class="pdf-preview">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                    <i class="fas fa-file-pdf" style="color:#d1442b;"></i> 
+                    <span>原始PDF快照 · ${escapeHtml(item.pdfPage)}</span>
+                </div>
+                <div style="background:#F3F9F3; border-radius: 16px; padding: 20px; text-align:center; color:#668766;">
+                    <i class="fas fa-image"></i> PDF预览示意 · 高亮段落已在上方展示
+                </div>
+                <div style="margin-top:12px; text-align:right;"><span style="background:#EFF6EF; padding:4px 12px; border-radius:18px;"><i class="fas fa-check-circle"></i> 来源可靠 · 段落精准匹配</span></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-outline" id="downloadMockBtn"><i class="fas fa-download"></i> 下载原文片段</button>
+                <button class="btn-green" id="closeModalConfirmBtn"><i class="fas fa-check"></i> 确认并返回证据链</button>
+            </div>
+        `;
+        document.getElementById('originModal').classList.add('active');
+        // 绑定模态框内按钮
+        document.getElementById('closeModalConfirmBtn')?.addEventListener('click', () => closeModal());
+        document.getElementById('downloadMockBtn')?.addEventListener('click', () => alert("模拟下载原文片段 (PDF节选)"));
+    }
+
+    function closeModal() {
+        document.getElementById('originModal').classList.remove('active');
+    }
+
+    // 新增证据行（简易模拟）
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+        const newId = "NEW-" + (currentData.length+1);
+        currentData.push({
+            id: newId, syndrome: "待标注证型", intervention: "待补充", outcomes: "待提取疗效数据", studyType: "RCT",
+            fullTitle: "新导入文献标题（可编辑）", journal: "待更新",
+            highlightParagraph: "此处为原文高亮段落，请通过上传PDF后自动抽取或手动编辑。", pdfPage: "第X页"
+        });
+        renderTable();
+    });
+    document.getElementById('confirmChainBtn').addEventListener('click', () => {
+        alert("证据链已确认！后续可基于当前结构化证据调用AI生成综述（受约束生成）");
+    });
+    // 搜索过滤
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        const keyword = e.target.value.toLowerCase();
+        if (!keyword.trim()) {
+            currentData = [...evidenceData];
+        } else {
+            currentData = evidenceData.filter(item => 
+                item.id.toLowerCase().includes(keyword) || 
+                item.syndrome.includes(keyword) || 
+                item.intervention.includes(keyword) ||
+                item.outcomes.includes(keyword)
+            );
+        }
+        renderTable();
+    });
+    // 关闭模态窗全局
+    document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('originModal');
+        if (e.target === modal) closeModal();
+    });
+
+    // 初始化渲染
+    renderTable();
+    // 附加拖拽排序简易实现 (使用HTML5拖拽, 为了演示完整性提供基础排序能力)
+    function initDragDrop() {
+        const tbody = document.getElementById('tableBody');
+        let dragSrcIdx = null;
+        tbody.querySelectorAll('tr').forEach(row => {
+            row.setAttribute('draggable', 'true');
+            row.addEventListener('dragstart', (e) => {
+                dragSrcIdx = parseInt(row.getAttribute('data-idx'));
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            row.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+            row.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+                if (!targetRow) return;
+                const targetIdx = parseInt(targetRow.getAttribute('data-idx'));
+                if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
+                    const moved = currentData[dragSrcIdx];
+                    currentData.splice(dragSrcIdx, 1);
+                    currentData.splice(targetIdx, 0, moved);
+                    renderTable();
+                    initDragDrop(); // 重新绑定拖拽事件
+                }
+            });
+        });
+    }
+    // 由于renderTable会刷新dom，需要在每次渲染后重新绑定drag
+    const origRender = renderTable;
+    window.renderTable = function() {
+        origRender();
+        setTimeout(() => initDragDrop(), 10);
+    };
+    renderTable = function() {
+        origRender();
+        setTimeout(() => initDragDrop(), 10);
+    };
+    renderTable();
+</script>
+</body>
+</html>

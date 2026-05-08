@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>快速模式 · AI辅助证据链构建</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f5ee;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 32px;
+        }
+
+        .app {
+            max-width: 1300px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 32, 0, 0.12);
+            overflow: hidden;
+        }
+
+        /* 顶部栏 */
+        .top-bar {
+            padding: 20px 32px;
+            border-bottom: 1px solid #e9f0e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            background: #2c6e2f;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .mode-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1c3b1c;
+        }
+        .mode-badge {
+            background: #eef5e9;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2c6e2f;
+        }
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            color: #547854;
+        }
+
+        /* 主内容区 */
+        .main {
+            padding: 28px 32px 32px;
+        }
+
+        /* 查询摘要卡片 */
+        .query-summary {
+            background: #F9FEF9;
+            border-radius: 20px;
+            border: 1px solid #e2f0e2;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .question-text {
+            font-weight: 500;
+            font-size: 1rem;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #d0e6d0;
+            color: #1f3b1f;
+        }
+        .badge-tag {
+            background: #eef5e9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 证据链表格 */
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c6e2f;
+            margin: 24px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 0 0 1px #e9f0e5;
+        }
+        .evidence-table th {
+            text-align: left;
+            padding: 14px 12px;
+            background: #F9FEF9;
+            color: #2c5e2c;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-bottom: 1px solid #e2efe2;
+        }
+        .evidence-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #edf4ed;
+            font-size: 0.8rem;
+            color: #1f2a1f;
+        }
+        .edit-icon, .delete-icon {
+            cursor: pointer;
+            color: #7e9e7e;
+            margin: 0 4px;
+        }
+        .confirm-btn {
+            background: #2c6e2f;
+            border: none;
+            border-radius: 32px;
+            padding: 8px 24px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .outline-btn {
+            background: white;
+            border: 1px solid #cde0cd;
+            border-radius: 32px;
+            padding: 8px 24px;
+            color: #2c5e2c;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .footer-note {
+            background: #fafdfa;
+            margin-top: 28px;
+            padding: 14px 20px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #6f8f6f;
+            text-align: center;
+            border: 1px solid #e9f0e5;
+        }
+        @media (max-width: 800px) {
+            .main { padding: 20px; }
+            .evidence-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="top-bar">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-brain"></i></div>
+            <div class="mode-title">快速模式 · AI辅助证据链</div>
+            <div class="mode-badge"><i class="fas fa-bolt"></i> 智能推荐 | 专家确认</div>
+        </div>
+        <div class="nav-links">
+            <span><i class="fas fa-home"></i> 返回首页</span>
+            <span><i class="fas fa-sliders-h"></i> 切换精细模式</span>
+        </div>
+    </div>
+    <div class="main">
+        <!-- 用户问题与AI理解 -->
+        <div class="query-summary">
+            <div><i class="fas fa-question-circle" style="color:#2c6e2f;"></i> <strong>您的问题：</strong></div>
+            <div class="question-text">缺血性脑卒中恢复期气虚痰瘀证使用补阳还五汤的疗效及安全性如何？</div>
+            <div><span class="badge-tag"><i class="fas fa-tag"></i> 病程:恢复期</span> <span class="badge-tag"><i class="fas fa-tag"></i> 证型:气虚痰瘀证</span> <span class="badge-tag"><i class="fas fa-tag"></i> 治法:益气活血法</span></div>
+        </div>
+
+        <!-- AI自动生成的初始证据链 -->
+        <div class="section-title">
+            <i class="fas fa-robot"></i> AI 智能生成的初始证据链（可编辑确认）
+        </div>
+        <table class="evidence-table">
+            <thead>
+                <tr><th>文献ID</th><th>证型</th><th>干预措施</th><th>疗效指标/数值</th><th>研究类型</th><th>操作</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>RCT-01</td><td>气虚痰瘀证</td><td>补阳还五汤加减</td><td>NIHSS ↓3.2分, Barthel ↑18分</td><td>RCT</td><td><i class="fas fa-edit edit-icon"></i> <i class="fas fa-trash-alt delete-icon"></i></td></tr>
+                <tr><td>RCT-02</td><td>气虚血瘀证</td><td>脑心通胶囊</td><td>中医证候积分 ↓6.2分</td><td>RCT</td><td><i class="fas fa-edit edit-icon"></i> <i class="fas fa-trash-alt delete-icon"></i></td></tr>
+                <tr><td>SysRev-03</td><td>气虚痰瘀证</td><td>醒脑开窍针法</td><td>总有效率 OR=2.34</td><td>系统综述</td><td><i class="fas fa-edit edit-icon"></i> <i class="fas fa-trash-alt delete-icon"></i></td></tr>
+                <tr><td>SR-05</td><td>气虚痰瘀证</td><td>补阳还五汤</td><td>不良事件 RR=1.12, P>0.05</td><td>Meta分析</td><td><i class="fas fa-edit edit-icon"></i> <i class="fas fa-trash-alt delete-icon"></i></td></tr>
+            </tbody>
+        </table>
+        <div style="margin-top: 12px; font-size: 0.7rem; color:#7e9e7e;"><i class="fas fa-info-circle"></i> 点击编辑图标可修改数值或删除文献，支持拖拽排序（演示示意）</div>
+
+        <!-- 操作栏 -->
+        <div class="action-buttons">
+            <button class="outline-btn" id="regenerateBtn"><i class="fas fa-sync-alt"></i> 重新生成初始证据链</button>
+            <button class="confirm-btn" id="acceptBtn"><i class="fas fa-check-circle"></i> 确认并生成综述</button>
+        </div>
+
+        <!-- 结果显示区域（点击确认后显示） -->
+        <div id="resultArea" style="margin-top: 32px; display: none;">
+            <div class="section-title"><i class="fas fa-file-alt"></i> 基于以上证据链生成综述摘要</div>
+            <div style="background: #FDFFF7; border-radius: 24px; border: 1px solid #e2f0e2; padding: 20px 24px;">
+                <div id="generatedText" style="line-height: 1.65; font-size: 0.9rem; color: #1f2a1f;"></div>
+                <div style="margin-top: 20px; border-top: 1px solid #e0ece0; padding-top: 16px; font-size: 0.7rem; color: #6f8f6f;">
+                    <i class="fas fa-book"></i> 参考文献: RCT-01, SysRev-03, SR-05 （点击角标可查看原文摘要）
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 20px;">
+                <span><i class="fas fa-check-circle"></i> 每句话均来自已确认的证据链，可追溯、可复核</span>
+                <span><i class="fas fa-shield-alt"></i> 受约束AI生成，杜绝幻觉</span>
+                <span><i class="fas fa-download"></i> 导出综述</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note" style="border-radius: 0; margin:0; border-top:1px solid #e9f0e5;">
+        <i class="fas fa-database"></i> 证据底座包含800+缺血性脑卒中核心文献 | 所有生成内容均可追溯至原始PDF
+    </div>
+</div>
+
+<script>
+    // 模拟确认后生成综述
+    const acceptBtn = document.getElementById('acceptBtn');
+    const resultArea = document.getElementById('resultArea');
+    const generatedTextDiv = document.getElementById('generatedText');
+
+    acceptBtn.addEventListener('click', () => {
+        if (resultArea.style.display === 'none') {
+            generatedTextDiv.innerHTML = `
+                <p>多项高质量证据表明，针对缺血性脑卒中恢复期气虚痰瘀证，<strong>补阳还五汤加减联合常规治疗</strong>具有明确的临床疗效。<span style="background:#EFF6EF;padding:1px 6px;border-radius:12px;">(RCT-01)</span> 一项随机对照试验显示，治疗组NIHSS评分降低3.2分，Barthel指数提高18分，总有效率达89.2%。</p>
+                <p>系统综述<span style="background:#EFF6EF;padding:1px 6px;border-radius:12px;">(SysRev-03)</span> 进一步证实益气活血法总有效率优势比OR=2.34（95%CI 1.52-3.20）。在安全性方面，Meta分析<span style="background:#EFF6EF;padding:1px 6px;border-radius:12px;">(SR-05)</span> 显示补阳还五汤组不良事件发生率与对照组无统计学差异（RR=1.12，P>0.05），主要为轻度胃肠不适，无严重不良事件。</p>
+                <p>综上，补阳还五汤治疗恢复期气虚痰瘀证安全有效，推荐作为临床参考。</p>
+            `;
+            resultArea.style.display = 'block';
+            // 滚动到结果区域
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            // 如果已显示，可重新生成（模拟刷新）
+            generatedTextDiv.innerHTML = `
+                <p>（已根据当前证据链重新生成）补阳还五汤治疗缺血性脑卒中恢复期气虚痰瘀证可获得明显神经功能改善和生活质量提升。<span style="background:#EFF6EF;padding:1px 6px;border-radius:12px;">(RCT-01)</span> 同时安全性良好，不增加严重不良反应风险。<span style="background:#EFF6EF;padding:1px 6px;border-radius:12px;">(SR-05)</span></p>
+            `;
+        }
+    });
+
+    // 模拟重新生成初始证据链（刷新表格）
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    regenerateBtn.addEventListener('click', () => {
+        alert("演示：系统将基于自然语言理解重新检索证据库，生成新的初始证据链（实际应用中会更新表格内容）。");
+        // 可简单模拟修改一行数据
+        const tbody = document.querySelector('.evidence-table tbody');
+        if (tbody) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `<td>RCT-08</td><td>气虚痰瘀证</td><td>补阳还五汤+针刺</td><td>Fugl-Meyer ↑12.3分</td><td>RCT</td><td><i class="fas fa-edit edit-icon"></i> <i class="fas fa-trash-alt delete-icon"></i></td>`;
+            tbody.appendChild(newRow);
+        }
+    });
+</script>
+</body>
+</html>

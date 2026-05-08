@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>缺血性脑卒中中医智能证据构建系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f9f2;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 32, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid #e9f0e5;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: #2c6e2f;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a3b1a;
+            line-height: 1.3;
+            max-width: 260px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #3a5a3a;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .hero {
+            padding: 48px 48px 32px 48px;
+            text-align: center;
+            background: linear-gradient(145deg, #ffffff 0%, #fafff7 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1c3b1c;
+            max-width: 800px;
+            margin: 0 auto 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: #547854;
+            max-width: 620px;
+            margin: 0 auto 36px;
+        }
+
+        .query-box {
+            max-width: 720px;
+            margin: 0 auto 48px;
+            background: white;
+            border-radius: 64px;
+            box-shadow: 0 8px 20px rgba(0, 32, 0, 0.08), 0 0 0 1px #e2eddf;
+            display: flex;
+            align-items: center;
+            padding: 6px 6px 6px 24px;
+        }
+
+        .query-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 16px 0;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+        }
+
+        .query-box button {
+            background: #2c6e2f;
+            border: none;
+            border-radius: 48px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.1s;
+        }
+
+        .query-box button:hover {
+            background: #205a23;
+        }
+
+        /* 风格选择栏 */
+        .style-bar {
+            max-width: 720px;
+            margin: -20px auto 28px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .style-btn {
+            background: white;
+            border: 1px solid #cde0cd;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c5e2c;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .style-btn.active {
+            background: #2c6e2f;
+            color: white;
+            border-color: #2c6e2f;
+        }
+        .more-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .more-btn {
+            background: #eef5e9;
+            border: 1px dashed #a9c7a9;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .more-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border: 1px solid #d0e6d0;
+            border-radius: 20px;
+            padding: 8px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10;
+            min-width: 150px;
+            display: none;
+        }
+        .more-menu div {
+            padding: 8px 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #2c5e2c;
+        }
+        .more-menu div:hover {
+            background: #f0f6ed;
+        }
+
+        .examples {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 56px;
+        }
+
+        .example-chip {
+            background: #f0f6ed;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            color: #2c5e2c;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .dual-mode {
+            display: flex;
+            gap: 32px;
+            padding: 0 48px 48px 48px;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            flex: 1;
+            background: #fefefc;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 0 0 1px #e9f0e5;
+        }
+
+        .mode-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1f3b1f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-desc {
+            color: #547854;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .path-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .path-list li {
+            margin-bottom: 20px;
+            border-left: 3px solid #cde0cd;
+            padding-left: 16px;
+        }
+
+        .path-title {
+            font-weight: 700;
+            color: #2c6e2f;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .path-detail {
+            font-size: 0.8rem;
+            color: #4f6b4f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #cde0cd;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: #2c5e2c;
+            width: fit-content;
+            transition: 0.1s;
+        }
+
+        .btn-outline:hover {
+            background: #f0f6ed;
+        }
+
+        .footer {
+            background: #fafdf9;
+            padding: 20px 48px;
+            border-top: 1px solid #e9f0e5;
+            font-size: 0.7rem;
+            color: #6f8f6f;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .hero { padding: 32px 24px; }
+            .dual-mode { flex-direction: column; }
+            .query-box { margin-bottom: 32px; }
+            .logo-text { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-brain"></i></div>
+            <div class="logo-text">缺血性脑卒中中医智能证据构建系统</div>
+        </div>
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">证据库</a>
+            <a href="#">文档</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>证据智能问答 · 两种工作模式</h1>
+        <p>输入您的问题，AI 将基于结构化证据库直接给出带文献来源的可靠回答。专业用户可选用下方精准工具。</p>
+        <div class="query-box">
+            <input type="text" placeholder="例如：恢复期气虚痰瘀证使用补阳还五汤的疗效如何？" id="queryInput">
+            <button id="askBtn"><i class="fas fa-search"></i> 智能问答</button>
+        </div>
+
+        <!-- 新增风格选择栏 -->
+        <div class="style-bar">
+            <button class="style-btn active" data-style="data">📊 偏数据风格</button>
+            <button class="style-btn" data-style="review">📝 偏综述风格</button>
+            <button class="style-btn" data-style="clinical">🏥 偏临床风格</button>
+            <div class="more-wrapper" id="moreWrapper">
+                <button class="more-btn" id="moreBtn"><i class="fas fa-ellipsis-h"></i> 更多风格</button>
+                <div id="moreMenu" class="more-menu">
+                    <div data-style="concise">简洁摘要风格</div>
+                    <div data-style="detailed">详细统计风格</div>
+                    <div data-style="patient">患者科普风格</div>
+                    <div data-style="custom">自定义风格...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <div class="example-chip">📄 气虚血瘀证常用中成药及NIHSS变化</div>
+            <div class="example-chip">🧠 醒脑开窍针法对 Barthel 指数的影响</div>
+            <div class="example-chip">📊 恢复期益气活血法的总有效率 Meta 证据</div>
+        </div>
+    </div>
+
+    <div class="dual-mode">
+        <div class="mode-card">
+            <h3><i class="fas fa-bolt" style="color:#2c6e2f;"></i> 快速模式 · AI 辅助生成</h3>
+            <div class="mode-desc">输入研究问题，系统自动推荐初始证据链，专家只需确认或微调，效率提升70%。</div>
+            <ul class="path-list">
+                <li><div class="path-title">🚀 快速路径</div><div class="path-detail">输入问题 → AI 生成候选证据链 → 一键确认/修改 → 输出综述</div></li>
+                <li><div class="path-title">⚡ 适用场景</div><div class="path-detail">课题立项查新、综述初稿、临床证据速查</div></li>
+            </ul>
+            <div class="btn-outline"><i class="fas fa-arrow-right"></i> 体验快速模式</div>
+        </div>
+        <div class="mode-card">
+            <h3><i class="fas fa-sliders-h" style="color:#2c6e2f;"></i> 精细模式 · 手动全程控制</h3>
+            <div class="mode-desc">逐层筛选标签、逐篇筛选文献、自由编辑证据链，保留完全控制权，适合严谨科研。</div>
+            <ul class="path-list">
+                <li><div class="path-title">🖊️ 精细路径</div><div class="path-detail">标签筛选 → 文献列表 → 生成证据表 → 增删改查 → 受约束AI生成</div></li>
+                <li><div class="path-title">✅ 核心优势</div><div class="path-detail">证据可回溯、可编辑、可复核，杜绝幻觉</div></li>
+            </ul>
+            <div class="btn-outline"><i class="fas fa-table"></i> 进入精细工作台</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-database"></i> 共享结构化证据底座（缺血性脑卒中专病库 · 已收录800+核心文献） · 所有生成内容均带可追溯角标
+    </div>
+</div>
+
+<script>
+    // 当前选中的风格
+    let currentStyle = "data";
+
+    // 风格映射回答内容（模拟AI根据不同风格输出）
+    function getAnswerByStyle(style, questionText) {
+        // 基础数据（模拟从证据库中检索结果）
+        const baseData = {
+            outcome: "NIHSS评分降低3.2分，Barthel指数提高18分，总有效率89.2%",
+            or: "总有效率OR=2.34 (95%CI 1.52-3.20)",
+            safety: "不良事件发生率与对照组无统计学差异（RR=1.12），主要为轻度胃肠不适"
+        };
+        const prefix = `您的问题：“${questionText}”\n系统已自动转为标签：恢复期、气虚痰瘀证、补阳还五汤。\n\n`;
+        if (style === "data") {
+            return prefix + `【偏数据风格】\n根据RCT-01数据：补阳还五汤组较对照组NIHSS评分降低3.2分（P<0.01），Barthel指数提高18分（95%CI 12.4-23.6），总有效率为89.2% vs 71.4%。\n系统综述(SysRev-03)合并分析显示益气活血法总有效率优势比OR=2.34（95%CI 1.52-3.20）。\n安全性方面(SR-05)：不良事件RR=1.12（P>0.05），绝对风险差为1.8%。\n以上数据表明补阳还五汤治疗恢复期气虚痰瘀证可获得明确的神经功能改善，且不增加严重不良反应风险。`;
+        } else if (style === "review") {
+            return prefix + `【偏综述风格】\n多项高质量研究证实，针对缺血性脑卒中恢复期气虚痰瘀证，补阳还五汤加减联合常规治疗具有显著的临床疗效。RCT-01显示该方可显著降低神经功能缺损评分，提高日常生活能力，总有效率优于对照组。系统综述进一步肯定了益气活血法的总体优势。在安全性评价中，补阳还五汤相关不良事件轻微且可控，与安慰剂无统计学差异。综上，补阳还五汤是治疗该证型的有效且安全的中药方剂。`;
+        } else if (style === "clinical") {
+            return prefix + `【偏临床风格】\n对于恢复期气虚痰瘀证的缺血性卒中患者，建议在常规治疗基础上加用补阳还五汤。临床证据提示：用药8周后患者NIHSS评分平均降低3.2分，Barthel指数提升18分，约九成患者可获得良好功能结局（基于RCT-01）。注意个别患者可能出现轻度胃肠不适，但不影响继续治疗。本方案操作简便，适合基层推广。`;
+        } else if (style === "concise") {
+            return prefix + `【简洁摘要风格】\n补阳还五汤治疗恢复期气虚痰瘀证安全有效。可改善神经功能（NIHSS↓3.2）和日常生活能力（Barthel↑18），总有效率89.2%。不良反应轻微。（来源：RCT-01, SysRev-03）`;
+        } else if (style === "detailed") {
+            return prefix + `【详细统计风格】\n详细统计结果：RCT-01（n=120）补阳还五汤组与对照组比较，NIHSS评分差值-3.2（95%CI -4.1 to -2.3），Barthel指数差值18.0（95%CI 12.4-23.6）；总有效率OR=3.01（95%CI 1.52-5.96）。系统综述汇总8项研究，固定效应模型显示总有效率OR=2.34（I²=34%）。安全性Meta分析纳入4篇RCT，不良事件RR=1.12（95%CI 0.85-1.48），无异质性。建议临床医生参考上述数值进行决策。`;
+        } else if (style === "patient") {
+            return prefix + `【患者科普风格】\n通俗解释：对于脑卒中恢复期且有气虚血瘀表现的患者，使用补阳还五汤（一种传统中药方）可以帮助改善肢体活动能力和生活自理能力。研究显示，配合常规治疗，约九成患者病情好转，且副作用很少，主要是轻微的胃部不适。`;
+        } else {
+            return prefix + `（自定义风格预览）根据当前证据链，补阳还五汤对恢复期气虚痰瘀证患者有明确疗效，可改善神经功能和日常生活质量，且安全性良好。具体数值请参考证据表。`;
+        }
+    }
+
+    // 更新样式active
+    function updateActiveStyle(style) {
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            if (btn.getAttribute('data-style') === style) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        currentStyle = style;
+    }
+
+    // 处理问答
+    function handleQuestion(questionText) {
+        if (!questionText || questionText.trim() === "") {
+            alert("请输入一个临床科研问题，例如：恢复期气虚痰瘀证使用补阳还五汤的疗效如何？");
+            return;
+        }
+        const answer = getAnswerByStyle(currentStyle, questionText);
+        alert(answer);
+    }
+
+    // 绑定智能问答按钮
+    document.getElementById('askBtn').addEventListener('click', () => {
+        const query = document.getElementById('queryInput').value.trim();
+        handleQuestion(query);
+    });
+
+    // 示例问题点击
+    const exampleChips = document.querySelectorAll('.example-chip');
+    exampleChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const txt = chip.innerText.replace(/[📄🧠📊]/g, '').trim();
+            document.getElementById('queryInput').value = txt;
+            handleQuestion(txt);
+        });
+    });
+
+    // 风格按钮点击
+    document.querySelectorAll('.style-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const style = btn.getAttribute('data-style');
+            updateActiveStyle(style);
+            // 可选提示
+            alert(`已切换至“${btn.innerText}”，后续问答将以此风格输出。`);
+        });
+    });
+
+    // 更多菜单逻辑
+    const moreBtn = document.getElementById('moreBtn');
+    const moreMenu = document.getElementById('moreMenu');
+    moreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.querySelectorAll('#moreMenu div').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const style = item.getAttribute('data-style');
+            if (style === 'custom') {
+                let customDesc = prompt("请输入自定义风格描述（如：侧重卫生经济学评价）", "侧重经济学评价");
+                if (customDesc) {
+                    alert(`自定义风格“${customDesc}”已应用，AI将尝试按此风格生成。当前演示使用默认自定义模板。`);
+                    // 为了演示，我们设置一个特殊style名，但为了简单，仍映射到custom分支
+                    currentStyle = "custom";
+                    // 清除其他active
+                    document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+                }
+            } else {
+                updateActiveStyle(style);
+                // 同时更新对应按钮的显示（非更多内的按钮也要高亮需要手动处理）
+                const targetBtn = document.querySelector(`.style-btn[data-style="${style}"]`);
+                if (targetBtn) {
+                    targetBtn.click(); // 触发已有逻辑
+                } else {
+                    // 如果是更多内的预设风格且没有对应按钮，手动更新
+                    currentStyle = style;
+                    document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+                }
+                alert(`已切换至“${item.innerText}”风格`);
+            }
+            moreMenu.style.display = 'none';
+        });
+    });
+    document.addEventListener('click', () => { moreMenu.style.display = 'none'; });
+</script>
+</body>
+</html>

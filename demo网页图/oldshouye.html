@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>缺血性脑卒中中医智能证据构建系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f9f2;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 32, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid #e9f0e5;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: #2c6e2f;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a3b1a;
+            line-height: 1.3;
+            max-width: 260px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #3a5a3a;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .hero {
+            padding: 48px 48px 32px 48px;
+            text-align: center;
+            background: linear-gradient(145deg, #ffffff 0%, #fafff7 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1c3b1c;
+            max-width: 800px;
+            margin: 0 auto 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: #547854;
+            max-width: 620px;
+            margin: 0 auto 36px;
+        }
+
+        .query-box {
+            max-width: 720px;
+            margin: 0 auto 48px;
+            background: white;
+            border-radius: 64px;
+            box-shadow: 0 8px 20px rgba(0, 32, 0, 0.08), 0 0 0 1px #e2eddf;
+            display: flex;
+            align-items: center;
+            padding: 6px 6px 6px 24px;
+        }
+
+        .query-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 16px 0;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+        }
+
+        .query-box button {
+            background: #2c6e2f;
+            border: none;
+            border-radius: 48px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.1s;
+        }
+
+        .query-box button:hover {
+            background: #205a23;
+        }
+
+        .examples {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 56px;
+        }
+
+        .example-chip {
+            background: #f0f6ed;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            color: #2c5e2c;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .dual-mode {
+            display: flex;
+            gap: 32px;
+            padding: 0 48px 48px 48px;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            flex: 1;
+            background: #fefefc;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 0 0 1px #e9f0e5;
+        }
+
+        .mode-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1f3b1f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-desc {
+            color: #547854;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .path-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .path-list li {
+            margin-bottom: 20px;
+            border-left: 3px solid #cde0cd;
+            padding-left: 16px;
+        }
+
+        .path-title {
+            font-weight: 700;
+            color: #2c6e2f;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .path-detail {
+            font-size: 0.8rem;
+            color: #4f6b4f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #cde0cd;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: #2c5e2c;
+            width: fit-content;
+            transition: 0.1s;
+        }
+
+        .btn-outline:hover {
+            background: #f0f6ed;
+        }
+
+        .footer {
+            background: #fafdf9;
+            padding: 20px 48px;
+            border-top: 1px solid #e9f0e5;
+            font-size: 0.7rem;
+            color: #6f8f6f;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .hero { padding: 32px 24px; }
+            .dual-mode { flex-direction: column; }
+            .query-box { margin-bottom: 32px; }
+            .logo-text { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-brain"></i></div>
+            <div class="logo-text">缺血性脑卒中中医智能证据构建系统</div>
+        </div>
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">证据库</a>
+            <a href="#">文档</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>证据智能问答 · 两种工作模式</h1>
+        <p>输入您的问题，AI 将基于结构化证据库直接给出带文献来源的可靠回答。专业用户可选用下方精准工具。</p>
+        <div class="query-box">
+            <input type="text" placeholder="例如：恢复期气虚痰瘀证使用补阳还五汤的疗效如何？" id="queryInput">
+            <button id="askBtn"><i class="fas fa-search"></i> 智能问答</button>
+        </div>
+        <div class="examples">
+            <div class="example-chip">📄 气虚血瘀证常用中成药及NIHSS变化</div>
+            <div class="example-chip">🧠 醒脑开窍针法对 Barthel 指数的影响</div>
+            <div class="example-chip">📊 恢复期益气活血法的总有效率 Meta 证据</div>
+        </div>
+    </div>
+
+    <div class="dual-mode">
+        <div class="mode-card">
+            <h3><i class="fas fa-bolt" style="color:#2c6e2f;"></i> 快速模式 · AI 辅助生成</h3>
+            <div class="mode-desc">输入研究问题，系统自动推荐初始证据链，专家只需确认或微调，效率提升70%。</div>
+            <ul class="path-list">
+                <li><div class="path-title">🚀 快速路径</div><div class="path-detail">输入问题 → AI 生成候选证据链 → 一键确认/修改 → 输出综述</div></li>
+                <li><div class="path-title">⚡ 适用场景</div><div class="path-detail">课题立项查新、综述初稿、临床证据速查</div></li>
+            </ul>
+            <div class="btn-outline"><i class="fas fa-arrow-right"></i> 体验快速模式</div>
+        </div>
+        <div class="mode-card">
+            <h3><i class="fas fa-sliders-h" style="color:#2c6e2f;"></i> 精细模式 · 手动全程控制</h3>
+            <div class="mode-desc">逐层筛选标签、逐篇筛选文献、自由编辑证据链，保留完全控制权，适合严谨科研。</div>
+            <ul class="path-list">
+                <li><div class="path-title">🖊️ 精细路径</div><div class="path-detail">标签筛选 → 文献列表 → 生成证据表 → 增删改查 → 受约束AI生成</div></li>
+                <li><div class="path-title">✅ 核心优势</div><div class="path-detail">证据可回溯、可编辑、可复核，杜绝幻觉</div></li>
+            </ul>
+            <div class="btn-outline"><i class="fas fa-table"></i> 进入精细工作台</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-database"></i> 共享结构化证据底座（缺血性脑卒中专病库 · 已收录800+核心文献） · 所有生成内容均带可追溯角标
+    </div>
+</div>
+
+<script>
+    document.getElementById('askBtn').addEventListener('click', () => {
+        const query = document.getElementById('queryInput').value.trim();
+        if (!query) {
+            alert("请输入一个临床科研问题，例如：恢复期气虚痰瘀证使用补阳还五汤的疗效如何？");
+            return;
+        }
+        alert("【智能问答演示】\n系统将自动理解问题 → 转为标签（恢复期，气虚痰瘀证，补阳还五汤）→ 检索证据库 → 生成回答：\n\n根据 RCT-01（2024），补阳还五汤加减可显著降低 NIHSS 评分 3.2 分 (P<0.01)，提高 Barthel 指数 18 分。系统综述 (SysRev-03) 显示益气活血法总有效率 OR=2.34。\n\n点击「查看详细证据」可进入精细模式追溯原文。");
+    });
+    const exampleChips = document.querySelectorAll('.example-chip');
+    exampleChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.getElementById('queryInput').value = chip.innerText.replace(/[📄🧠📊]/g, '').trim();
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>证据链编辑界面 | 结构化证据工程平台</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f8f5;   /* 浅绿色背景，模拟截图外围 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding: 32px;
+        }
+
+        /* 主卡片——高保真界面 */
+        .evidence-card {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 32, 0, 0.12), 0 0 0 1px rgba(0, 80, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* 头部 */
+        .card-header {
+            padding: 24px 32px 16px 32px;
+            border-bottom: 1px solid #e9f0e9;
+        }
+
+        .title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .title-section h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #1C3B1C;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .title-section h2 i {
+            color: #2E7D32;
+            font-size: 1.6rem;
+        }
+
+        .badge {
+            background: #eef5ee;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2C5E2C;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #fafdfa;
+            border: 1px solid #ddebe0;
+            border-radius: 44px;
+            padding: 8px 18px;
+            gap: 12px;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            color: #588157;
+            font-size: 1rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: default;
+            transition: 0.1s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #cfe3cf;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: #2C5E2C;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: default;
+        }
+
+        /* 表格区域 */
+        .table-container {
+            padding: 0 32px 24px 32px;
+            overflow-x: auto;
+        }
+
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .evidence-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background-color: #F9FEF9;
+            color: #2C5E2C;
+            font-weight: 600;
+            border-bottom: 2px solid #e2f0e2;
+            font-size: 0.85rem;
+        }
+
+        .evidence-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #edf4ed;
+            vertical-align: middle;
+            color: #1F2A1F;
+        }
+
+        .drag-handle {
+            cursor: default;
+            color: #a6c9a6;
+            font-size: 1.2rem;
+            padding-right: 4px;
+            display: inline-block;
+        }
+
+        .edit-icon, .delete-icon, .save-icon {
+            cursor: default;
+            margin: 0 6px;
+            color: #7e9e7e;
+            font-size: 1rem;
+            transition: 0.1s;
+        }
+
+        .edit-icon:hover, .delete-icon:hover { color: #2E7D32; }
+
+        .inline-badge {
+            background: #eef5ee;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            color: #2C5E2C;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .outcome-value {
+            background: #F9FEF9;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            display: inline-block;
+            border: 1px solid #e0f0e0;
+        }
+
+        .action-cell {
+            white-space: nowrap;
+        }
+
+        .footer-note {
+            background: #fafdfa;
+            margin: 0 32px 24px 32px;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            color: #4b6b4b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e1ede1;
+        }
+
+        .footer-note i {
+            color: #588157;
+        }
+
+        @media (max-width: 1000px) {
+            .card-header { padding: 20px; }
+            .table-container { padding: 0 20px 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="evidence-card">
+    <div class="card-header">
+        <div class="title-section">
+            <h2>
+                <i class="fas fa-link"></i> 
+                结构化证据链 · 可编辑模式
+            </h2>
+        </div>
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="在证据链中快速筛选文献 / 疗效指标...">
+            </div>
+            <div class="btn-group">
+                <div class="btn-secondary"><i class="fas fa-plus-circle"></i> 新增证据行</div>
+                <div class="btn-primary"><i class="fas fa-check-circle"></i> 确认证据链</div>
+            </div>
+        </div>
+    </div>
+    <div class="table-container">
+        <table class="evidence-table">
+            <thead>
+                <tr>
+                    <th style="width: 30px"></th>
+                    <th>文献ID</th>
+                    <th>证型</th>
+                    <th>干预措施</th>
+                    <th>疗效指标 <span style="font-weight: normal;">(关键数值)</span></th>
+                    <th>研究类型</th>
+                    <th style="width: 100px">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 行1 展示拖拽手柄 + 可编辑示意 -->
+                <tr>
+                    <td class="drag-handle"><i class="fas fa-grip-vertical"></i></td>
+                    <td><span class="inline-badge">RCT-01</span></td>
+                    <td>气虚痰瘀证</td>
+                    <td>益气活血方 (补阳还五汤加减)</td>
+                    <td>
+                        <span class="outcome-value">NIHSS ↓3.2分</span> 
+                        <span class="outcome-value">Barthel ↑18分</span>
+                        <i class="fas fa-pencil-alt edit-icon" style="margin-left: 8px;"></i>
+                    </td>
+                    <td>RCT</td>
+                    <td class="action-cell">
+                        <i class="fas fa-edit edit-icon" title="编辑行"></i>
+                        <i class="fas fa-trash-alt delete-icon" title="删除"></i>
+                        <i class="fas fa-copy" style="color:#a6c9a6; margin:0 6px;"></i>
+                    </td>
+                </tr>
+                <tr style="background-color: #FDFFFD;">
+                    <td class="drag-handle"><i class="fas fa-grip-vertical"></i></td>
+                    <td><span class="inline-badge">RCT-02</span></td>
+                    <td>气虚血瘀证</td>
+                    <td>脑心通胶囊 + 基础治疗</td>
+                    <td>
+                        <span class="outcome-value">中医证候积分 ↓6.2</span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </td>
+                    <td>RCT</td>
+                    <td class="action-cell">
+                        <i class="fas fa-edit edit-icon"></i>
+                        <i class="fas fa-trash-alt delete-icon"></i>
+                    </td>
+                </tr>
+                <!-- 第三行：展示编辑中效果（疗效指标内联输入框模拟） -->
+                <tr>
+                    <td class="drag-handle"><i class="fas fa-grip-vertical"></i></td>
+                    <td><span class="inline-badge">SysRev-03</span></td>
+                    <td>气虚痰瘀证</td>
+                    <td>醒脑开窍针法</td>
+                    <td>
+                        <div class="indicator">
+                            <input type="text" value="总有效率 OR=2.34 (95%CI 1.52-3.20)" style="border:1px solid #cde0cd; border-radius: 14px; padding: 6px 12px; width: 210px; font-family: monospace; background: #ffffff;">
+                            <i class="fas fa-save save-icon" style="color:#2E7D32;"></i>
+                        </div>
+                    </td>
+                    <td>系统综述</td>
+                    <td class="action-cell">
+                        <i class="fas fa-edit edit-icon"></i>
+                        <i class="fas fa-trash-alt delete-icon"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="drag-handle"><i class="fas fa-grip-vertical"></i></td>
+                    <td><span class="inline-badge">观察-04</span></td>
+                    <td>风痰阻络证</td>
+                    <td>化痰通络汤 + 康复</td>
+                    <td>
+                        <span class="outcome-value">Fugl-Meyer ↑15.2</span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </td>
+                    <td>队列研究</td>
+                    <td class="action-cell">
+                        <i class="fas fa-edit edit-icon"></i>
+                        <i class="fas fa-trash-alt delete-icon"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer-note">
+        <i class="fas fa-grip-vertical"></i> 拖拽行左侧手柄可调整证据顺序 · 点击单元格编辑图标可快速修改数值/结论 · 右侧支持删除/复制证据单元
+        <span style="margin-left: auto; font-weight: 500;"><i class="fas fa-check-circle" style="color:#2E7D32;"></i> 人机协同 · 证据由您掌控</span>
+    </div>
+</div>
+</body>
+</html>

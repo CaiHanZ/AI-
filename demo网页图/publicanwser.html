@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>缺血性脑卒中中医智能证据问答 · 结果展示</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f9f2;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 32, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 32px;
+            border-bottom: 1px solid #e9f0e5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: #2c6e2f;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a3b1a;
+        }
+
+        .badge {
+            background: #eef5e9;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2c6e2f;
+            margin-left: 12px;
+        }
+
+        .main {
+            padding: 32px 48px 48px;
+        }
+
+        /* 用户问题气泡 */
+        .user-question {
+            background: #f0f6ed;
+            border-radius: 24px;
+            padding: 16px 24px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .user-icon {
+            background: #2c6e2f;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .question-text {
+            flex: 1;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #1f3b1f;
+            line-height: 1.4;
+        }
+
+        /* 答案区域 */
+        .answer-section {
+            background: #FDFFF7;
+            border-radius: 28px;
+            border: 1px solid #e9f0e5;
+            padding: 28px 32px;
+            margin-top: 8px;
+        }
+
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2eddf;
+        }
+
+        .answer-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c6e2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #7e9e7e;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .answer-text {
+            line-height: 1.7;
+            font-size: 0.95rem;
+            color: #1f2a1f;
+            margin-bottom: 28px;
+        }
+
+        .citation {
+            background: #EFF6EF;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2c6e2f;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 2px;
+            transition: 0.1s;
+        }
+
+        .citation:hover {
+            background: #dcecdc;
+        }
+
+        .ref-list {
+            background: #F9FEF9;
+            border-radius: 20px;
+            padding: 18px 24px;
+            border: 1px solid #e2f0e2;
+        }
+
+        .ref-list h4 {
+            font-size: 0.85rem;
+            color: #2c5e2c;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ref-item {
+            font-size: 0.75rem;
+            color: #4a674a;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e0ece0;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .ref-item:last-child {
+            border-bottom: none;
+        }
+
+        .ref-id {
+            font-weight: 600;
+            color: #2c6e2f;
+            min-width: 62px;
+        }
+
+        .footer-note {
+            background: #fafdf9;
+            margin-top: 28px;
+            padding: 16px 24px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #6f8f6f;
+            text-align: center;
+            border: 1px solid #e9f0e5;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .switch-mode {
+            color: #2c6e2f;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 700px) {
+            .main { padding: 24px; }
+            .answer-section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo-icon"><i class="fas fa-brain"></i></div>
+        <div class="logo-text">缺血性脑卒中中医智能证据构建系统</div>
+        <div class="badge">大众智能问答 · 结果示例</div>
+    </div>
+    <div class="main">
+        <!-- 用户问题展示 -->
+        <div class="user-question">
+            <div class="user-icon"><i class="fas fa-user"></i></div>
+            <div class="question-text">
+                恢复期气虚痰瘀证使用补阳还五汤的疗效如何？安全性怎样？
+            </div>
+        </div>
+
+        <!-- AI 回答区域 -->
+        <div class="answer-section">
+            <div class="answer-header">
+                <h3><i class="fas fa-robot"></i> 智能回答</h3>
+                <button class="copy-btn" id="copyBtn"><i class="far fa-copy"></i> 复制答案</button>
+            </div>
+            <div class="answer-text" id="answerText">
+                多项高质量证据表明，针对缺血性脑卒中恢复期气虚痰瘀证，<strong>补阳还五汤加减联合常规治疗</strong>具有明确的临床疗效。
+                <span class="citation" data-ref="RCT-01">(RCT-01)</span> 一项纳入120例患者的随机对照试验显示，治疗组在8周后NIHSS评分较对照组降低3.2分（P<0.01），Barthel指数提高18分，总有效率达89.2% vs 71.4%。
+                <span class="citation" data-ref="SysRev-02">(SysRev-02)</span> 系统综述（纳入8项RCT，n=756）进一步证实，益气活血法（补阳还五汤为代表）可显著改善神经功能缺损（WMD=-2.85, 95%CI -3.52 to -2.18）和日常生活能力（WMD=15.6, 95%CI 10.2-21.0），且不增加严重不良事件风险。
+                <br><br>
+                在安全性方面，<span class="citation" data-ref="RCT-01">(RCT-01)</span> 与<span class="citation" data-ref="SR-05">(SR-05)</span> 均报告补阳还五汤组不良反应主要为轻度胃肠不适（发生率约3-5%），与对照组无统计学差异，无严重肝肾功能损害或出血事件。总体而言，该方剂在恢复期气虚痰瘀证患者中应用安全有效。
+            </div>
+
+            <!-- 参考文献追溯 -->
+            <div class="ref-list">
+                <h4><i class="fas fa-book"></i> 参考文献（点击查看原文摘要）</h4>
+                <div id="refList">
+                    <div class="ref-item" data-ref="RCT-01">
+                        <span class="ref-id">RCT-01</span>
+                        <span>补阳还五汤治疗缺血性卒中恢复期气虚痰瘀证的随机对照研究 — 中国中西医结合杂志 · 2024 | NIHSS ↓3.2, Barthel ↑18, 总有效率89.2%</span>
+                    </div>
+                    <div class="ref-item" data-ref="SysRev-02">
+                        <span class="ref-id">SysRev-02</span>
+                        <span>益气活血法治疗缺血性脑卒中恢复期的系统评价 — 中医杂志 · 2024 | 合并8项RCT，WMD(NIHSS)=-2.85, Barthel WMD=15.6</span>
+                    </div>
+                    <div class="ref-item" data-ref="SR-05">
+                        <span class="ref-id">SR-05</span>
+                        <span>补阳还五汤治疗缺血性卒中安全性Meta分析 — 中国中药杂志 · 2023 | 不良反应RR=1.12, P>0.05，无严重事件</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作 -->
+        <div class="footer-note">
+            <span><i class="fas fa-check-circle"></i> 每句话均来自结构化证据库，角标可点击查看来源摘要</span>
+            <span class="switch-mode" onclick="alert('切换至专业模式，可对证据链进行编辑、增删、回溯原文。')">🔧 进入专业模式 → 编辑证据链</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 模拟点击参考文献弹窗详情
+    const refItems = document.querySelectorAll('.ref-item');
+    refItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const refId = item.getAttribute('data-ref');
+            if (refId === 'RCT-01') {
+                alert("【文献详情】\nID: RCT-01\n标题: 补阳还五汤治疗缺血性卒中恢复期气虚痰瘀证的随机对照研究\n期刊: 中国中西医结合杂志 2024年\n关键数据: NIHSS评分降低3.2分，Barthel指数提高18分，总有效率89.2%\n原文段落可追溯至高亮PDF（本演示为模拟）。");
+            } else if (refId === 'SysRev-02') {
+                alert("【文献详情】\nID: SysRev-02\n标题: 益气活血法治疗缺血性脑卒中恢复期的系统评价\n期刊: 中医杂志 2024年\n关键数据: 纳入8篇RCT，NIHSS加权均数差-2.85，Barthel指数15.6分");
+            } else if (refId === 'SR-05') {
+                alert("【文献详情】\nID: SR-05\n标题: 补阳还五汤治疗缺血性卒中安全性Meta分析\n期刊: 中国中药杂志 2023年\n关键数据: 不良反应RR=1.12，无统计学差异，无严重不良事件");
+            }
+        });
+    });
+
+    // 角标点击同样显示文献摘要
+    const citations = document.querySelectorAll('.citation');
+    citations.forEach(cit => {
+        cit.addEventListener('click', (e) => {
+            const refId = cit.getAttribute('data-ref');
+            if (refId === 'RCT-01') {
+                alert("【RCT-01】补阳还五汤方组显著降低NIHSS评分3.2分，提高Barthel指数18分。");
+            } else if (refId === 'SysRev-02') {
+                alert("【SysRev-02】益气活血法汇总分析显示神经功能缺损改善优于对照。");
+            } else if (refId === 'SR-05') {
+                alert("【SR-05】补阳还五汤安全性良好，不良反应与对照组无差异。");
+            }
+        });
+    });
+
+    // 复制答案
+    document.getElementById('copyBtn').addEventListener('click', () => {
+        const answerDiv = document.getElementById('answerText');
+        const plainText = answerDiv.innerText;
+        navigator.clipboard.writeText(plainText).then(() => {
+            alert("答案已复制到剪贴板（含文献引用信息）");
+        });
+    });
+</script>
+</body>
+</html>

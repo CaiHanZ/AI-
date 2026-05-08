@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>受约束AI生成综述 | 结构化证据工程平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef4ea;
+            font-family: 'Inter', sans-serif;
+            padding: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 主卡片容器 */
+        .generation-container {
+            max-width: 1000px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 32, 0, 0.15), 0 0 0 1px rgba(0, 80, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 24px 32px 16px 32px;
+            border-bottom: 1px solid #e9f0e9;
+        }
+
+        .title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .title-section h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #1C3B1C;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .badge {
+            background: #eef5ee;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #2C5E2C;
+        }
+
+        /* 证据链摘要卡片 */
+        .evidence-summary {
+            background: #F9FEF9;
+            margin: 0 32px 20px 32px;
+            border-radius: 20px;
+            border: 1px solid #e2f0e2;
+            padding: 16px 20px;
+        }
+
+        .summary-title {
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .evidence-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: white;
+            border: 1px solid #cde0cd;
+            border-radius: 24px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            color: #2C5E2C;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            padding: 0 32px 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid #eef4ee;
+        }
+
+        .task-selector {
+            display: flex;
+            gap: 12px;
+            background: #fafdfa;
+            border-radius: 44px;
+            padding: 4px;
+            border: 1px solid #e1ede1;
+        }
+
+        .task-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #547854;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .task-btn.active {
+            background: #2E7D32;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #1f6423;
+        }
+        .btn-secondary {
+            background: white;
+            border: 1px solid #cfe3cf;
+            padding: 8px 20px;
+            border-radius: 32px;
+            color: #2C5E2C;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* 生成结果区域 */
+        .result-area {
+            padding: 24px 32px 32px 32px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+        }
+
+        .result-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1C3B1C;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #7e9e7e;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .generated-text {
+            background: #FDFFF7;
+            border-radius: 24px;
+            padding: 24px 28px;
+            border: 1px solid #e4efe4;
+            line-height: 1.65;
+            font-size: 0.9rem;
+            color: #1F2A1F;
+        }
+
+        .citation {
+            background: #EFF6EF;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2C5E2C;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 1px;
+            transition: 0.1s;
+        }
+        .citation:hover {
+            background: #d4e6d4;
+            text-decoration: underline;
+        }
+
+        .ref-list {
+            margin-top: 24px;
+            background: #F9FEF9;
+            border-radius: 20px;
+            padding: 16px 20px;
+            border: 1px solid #e2f0e2;
+        }
+
+        .ref-list h4 {
+            font-size: 0.8rem;
+            color: #2C5E2C;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ref-item {
+            font-size: 0.7rem;
+            color: #4a674a;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e0ece0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .ref-id {
+            font-weight: 600;
+            color: #2E7D32;
+            min-width: 55px;
+        }
+
+        /* 模态框（文献详情） */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 45, 30, 0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-card {
+            width: 600px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 25px 40px -12px rgba(0, 32, 0, 0.4);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 24px 12px 24px;
+            border-bottom: 1px solid #e9f0e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1C3B1C;
+        }
+        .close-modal {
+            cursor: pointer;
+            background: #f0f7f0;
+            width: 28px;
+            height: 28px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-body {
+            padding: 20px 24px 28px;
+        }
+        .detail-field {
+            margin-bottom: 16px;
+        }
+        .detail-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #588157;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 0.85rem;
+            color: #1C2A1C;
+        }
+
+        .footer-note {
+            background: #fafdfa;
+            margin: 8px 32px 24px 32px;
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 0.7rem;
+            color: #4b6b4b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e1ede1;
+        }
+    </style>
+</head>
+<body>
+<div class="generation-container">
+    <div class="header">
+        <div class="title-section">
+            <h2><i class="fas fa-robot"></i> 受约束AI生成 · 科研综述</h2>
+            <div class="badge-group">
+                <div class="badge"><i class="fas fa-check-circle"></i> 基于已确认证据链</div>
+                <div class="badge"><i class="fas fa-ban"></i> 零幻觉 · 可溯源</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 证据链摘要卡片 -->
+    <div class="evidence-summary">
+        <div class="summary-title"><i class="fas fa-layer-group"></i> 当前证据链摘要（6个证据单元）</div>
+        <div class="evidence-tags">
+            <span class="tag">📄 RCT-01: 气虚痰瘀证 | 益气活血方 | NIHSS ↓3.2</span>
+            <span class="tag">📄 RCT-02: 气虚血瘀证 | 脑心通胶囊 | 证候积分 ↓6.2</span>
+            <span class="tag">📄 SysRev-03: 气虚痰瘀证 | 醒脑开窍针法 | OR=2.34</span>
+            <span class="tag">📄 观察-04: 风痰阻络证 | 化痰通络汤 | Fugl-Meyer ↑15.2</span>
+            <span class="tag">📄 NEW-05: 气虚证 | 艾灸 | mRS改善率38%</span>
+            <span class="tag">📄 RCT-06: 痰瘀互结证 | 化痰活血方 | 总有效率89%</span>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="task-selector">
+            <button class="task-btn active" data-task="summary">📑 综述摘要</button>
+            <button class="task-btn" data-task="basis">📖 立项依据</button>
+            <button class="task-btn" data-task="pattern">📊 用药/疗法规律总结</button>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-secondary" id="regenerateBtn"><i class="fas fa-sync-alt"></i> 重新生成</button>
+            <button class="btn-primary" id="exportBtn"><i class="fas fa-download"></i> 导出文本</button>
+        </div>
+    </div>
+
+    <div class="result-area">
+        <div class="result-header">
+            <h3><i class="fas fa-quote-right"></i> 生成结果（每句话带文献角标）</h3>
+            <button class="copy-btn" id="copyBtn"><i class="far fa-copy"></i> 复制全文</button>
+        </div>
+        <div class="generated-text" id="generatedText">
+            <!-- 动态生成内容 -->
+        </div>
+
+        <!-- 参考文献列表 -->
+        <div class="ref-list" id="refList">
+            <h4><i class="fas fa-book"></i> 参考文献追溯</h4>
+            <div id="refItems"></div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-info-circle"></i> AI仅基于上方已确认的结构化证据生成，每处角标均可点击查看原始文献摘要和疗效数据。
+        <span style="margin-left: auto;"><i class="fas fa-shield-alt"></i> 证据约束 · 杜绝幻觉</span>
+    </div>
+</div>
+
+<!-- 模态框：文献详情 -->
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 id="modalTitle">文献详情</h3>
+            <div class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></div>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // 证据库（与截图4/5保持一致，并增加两条新证据以满足综述内容）
+    const evidenceLibrary = {
+        "RCT-01": {
+            title: "补阳还五汤治疗缺血性卒中恢复期气虚痰瘀证的随机对照研究",
+            journal: "中国中西医结合杂志 · 2024",
+            syndrome: "气虚痰瘀证",
+            intervention: "益气活血方 (补阳还五汤加减)",
+            outcomes: "NIHSS评分降低3.2分，Barthel指数提高18分",
+            studyType: "RCT",
+            highlight: "观察组NIHSS评分较对照组降低3.2分 (P<0.01)，Barthel指数提高18分。"
+        },
+        "RCT-02": {
+            title: "脑心通胶囊对缺血性脑卒中气虚血瘀证患者的随机对照研究",
+            journal: "中华中医药杂志 · 2023",
+            syndrome: "气虚血瘀证",
+            intervention: "脑心通胶囊 + 基础治疗",
+            outcomes: "中医证候积分降低6.2分，血浆黏度降低15%",
+            studyType: "RCT",
+            highlight: "中医证候积分下降幅度优于对照组(6.2 vs 3.1)，血浆黏度降低15.3%。"
+        },
+        "SysRev-03": {
+            title: "醒脑开窍针法治疗缺血性卒中恢复期疗效的Meta分析",
+            journal: "中国针灸 · 2025",
+            syndrome: "气虚痰瘀证",
+            intervention: "醒脑开窍针法",
+            outcomes: "总有效率 OR=2.34 (95%CI 1.52-3.20)",
+            studyType: "系统综述",
+            highlight: "针法组总有效率提高 OR=2.34 (1.52-3.20)，神经功能缺损评分显著降低。"
+        },
+        "观察-04": {
+            title: "化痰通络汤对风痰阻络证脑卒中患者运动功能的前瞻性队列研究",
+            journal: "中医脑病杂志 · 2024",
+            syndrome: "风痰阻络证",
+            intervention: "化痰通络汤 + 康复",
+            outcomes: "Fugl-Meyer评分提高15.2分，mRS改善率42%",
+            studyType: "队列研究",
+            highlight: "6个月随访显示Fugl-Meyer评分提高15.2分，mRS 0-2分比例42%。"
+        },
+        "NEW-05": {
+            title: "艾灸对缺血性脑卒中恢复期气虚证患者神经功能的影响",
+            journal: "上海针灸杂志 · 2025",
+            syndrome: "气虚证",
+            intervention: "艾灸（足三里、关元）",
+            outcomes: "mRS改善率38%，NIHSS降低2.8分",
+            studyType: "RCT",
+            highlight: "艾灸组mRS改善率38%，NIHSS评分降低2.8分，优于对照组。"
+        },
+        "RCT-06": {
+            title: "化痰活血方治疗急性期痰瘀互结证脑卒中的临床研究",
+            journal: "中医急诊杂志 · 2024",
+            syndrome: "痰瘀互结证",
+            intervention: "化痰活血方",
+            outcomes: "总有效率89%，神经功能缺损评分降低4.5分",
+            studyType: "RCT",
+            highlight: "总有效率89%，神经功能缺损评分降低4.5分，差异有统计学意义。"
+        }
+    };
+
+    // 预定义生成内容（模拟AI受约束输出，每句话带文献ID）
+    let currentGeneratedHTML = "";
+    let currentRefs = [];
+
+    function buildSummary() {
+        // 综述摘要内容（带角标）
+        const htmlContent = `
+            <p>多项研究表明，针对缺血性脑卒中恢复期患者，中医药及针灸干预具有明确的神经保护和功能改善作用。<span class="citation" data-ref="RCT-01">(RCT-01)</span> 采用益气活血方（补阳还五汤加减）治疗气虚痰瘀证患者，可显著降低NIHSS评分3.2分，并提高Barthel指数18分。</p>
+            <p>针对气虚血瘀证，<span class="citation" data-ref="RCT-02">(RCT-02)</span> 脑心通胶囊联合基础治疗能降低中医证候积分6.2分，并改善血液流变学指标。</p>
+            <p>在非药物疗法方面，<span class="citation" data-ref="SysRev-03">(SysRev-03)</span> 系统综述证实醒脑开窍针法可使总有效率达到优势比2.34；<span class="citation" data-ref="NEW-05">(NEW-05)</span> 艾灸治疗气虚证亦可降低mRS评分，改善日常生活能力。</p>
+            <p>对于风痰阻络证和痰瘀互结证，<span class="citation" data-ref="观察-04">(观察-04)</span> 化痰通络汤可提高Fugl-Meyer运动评分15.2分，<span class="citation" data-ref="RCT-06">(RCT-06)</span> 化痰活血方总有效率高达89%。</p>
+            <p>综上，益气活血、化痰通络及针灸疗法在改善神经功能、生活质量和中医证候积分方面证据充足，未来的高质量RCT可进一步验证远期预后指标。</p>
+        `;
+        // 构建参考文献列表（按出现顺序去重）
+        const refIds = [...new Set([...htmlContent.matchAll(/data-ref="([^"]+)"/g)].map(m => m[1]))];
+        const refItemsHtml = refIds.map(refId => {
+            const lib = evidenceLibrary[refId];
+            if (!lib) return `<div class="ref-item"><span class="ref-id">${refId}</span><span>未找到文献信息</span></div>`;
+            return `<div class="ref-item" data-ref="${refId}" style="cursor:pointer;">
+                        <span class="ref-id">${refId}</span>
+                        <span>${lib.title} — ${lib.journal} | 证型: ${lib.syndrome} | ${lib.outcomes}</span>
+                    </div>`;
+        }).join('');
+        return { html: htmlContent, refsHtml: refItemsHtml, refIds };
+    }
+
+    function renderGenerated() {
+        const { html, refsHtml, refIds } = buildSummary();
+        currentGeneratedHTML = html;
+        document.getElementById('generatedText').innerHTML = html;
+        document.getElementById('refItems').innerHTML = refsHtml;
+
+        // 绑定角标点击事件
+        document.querySelectorAll('.citation').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const refId = el.getAttribute('data-ref');
+                if (refId && evidenceLibrary[refId]) {
+                    showModal(refId);
+                }
+            });
+        });
+        // 绑定参考文献项点击事件
+        document.querySelectorAll('.ref-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const refId = el.getAttribute('data-ref');
+                if (refId) showModal(refId);
+            });
+        });
+    }
+
+    function showModal(refId) {
+        const lib = evidenceLibrary[refId];
+        if (!lib) return;
+        document.getElementById('modalTitle').innerHTML = `文献详情 · ${refId}`;
+        const bodyHtml = `
+            <div class="detail-field"><div class="detail-label">标题</div><div class="detail-value">${lib.title}</div></div>
+            <div class="detail-field"><div class="detail-label">期刊/年份</div><div class="detail-value">${lib.journal}</div></div>
+            <div class="detail-field"><div class="detail-label">证型</div><div class="detail-value">${lib.syndrome}</div></div>
+            <div class="detail-field"><div class="detail-label">干预措施</div><div class="detail-value">${lib.intervention}</div></div>
+            <div class="detail-field"><div class="detail-label">疗效指标</div><div class="detail-value">${lib.outcomes}</div></div>
+            <div class="detail-field"><div class="detail-label">研究类型</div><div class="detail-value">${lib.studyType}</div></div>
+            <div class="detail-field"><div class="detail-label">原文高亮</div><div class="detail-value">“${lib.highlight}”</div></div>
+        `;
+        document.getElementById('modalBody').innerHTML = bodyHtml;
+        document.getElementById('detailModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // 任务切换（模拟）
+    let currentTask = 'summary';
+    document.querySelectorAll('.task-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTask = btn.getAttribute('data-task');
+            // 根据不同任务重新生成不同风格的文本（简单替换）
+            if (currentTask === 'basis') {
+                document.getElementById('generatedText').innerHTML = `
+                    <p>立项依据：当前已有证据表明，针对缺血性脑卒中恢复期气虚痰瘀证、气虚血瘀证等证型，益气活血法（补阳还五汤、脑心通胶囊）及针灸疗法可显著改善神经功能结局<span class="citation" data-ref="RCT-01">(RCT-01)</span><span class="citation" data-ref="RCT-02">(RCT-02)</span>。但现有研究缺乏长期随访及标准化证据链整合平台。本项目拟构建结构化证据工程，系统梳理病-证-法-方-药-效关系，为临床决策提供可追溯依据。</p>
+                `;
+            } else if (currentTask === 'pattern') {
+                document.getElementById('generatedText').innerHTML = `
+                    <p>疗法规律总结：<br>① 针对气虚痰瘀证，常用益气活血方（补阳还五汤）及醒脑开窍针法<span class="citation" data-ref="RCT-01">(RCT-01)</span><span class="citation" data-ref="SysRev-03">(SysRev-03)</span>；<br>② 气虚血瘀证则以脑心通胶囊为代表<span class="citation" data-ref="RCT-02">(RCT-02)</span>；<br>③ 非药物疗法（艾灸）对气虚证有效<span class="citation" data-ref="NEW-05">(NEW-05)</span>；<br>④ 化痰法多用于风痰阻络证或痰瘀互结证<span class="citation" data-ref="观察-04">(观察-04)</span><span class="citation" data-ref="RCT-06">(RCT-06)</span>。疗效指标以NIHSS、Barthel、mRS、中医证候积分最常见。</p>
+                `;
+            } else {
+                renderGenerated();
+            }
+            // 重新绑定角标点击事件（任务切换后重新绑定）
+            document.querySelectorAll('.citation').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const refId = el.getAttribute('data-ref');
+                    if (refId) showModal(refId);
+                });
+            });
+        });
+    });
+
+    // 重新生成按钮
+    document.getElementById('regenerateBtn').addEventListener('click', () => {
+        if (currentTask === 'summary') renderGenerated();
+        else {
+            // 触发现任务按钮的点击
+            const activeBtn = document.querySelector('.task-btn.active');
+            if (activeBtn) activeBtn.click();
+        }
+    });
+
+    // 复制全文
+    document.getElementById('copyBtn').addEventListener('click', () => {
+        const textDiv = document.getElementById('generatedText');
+        const plainText = textDiv.innerText;
+        navigator.clipboard.writeText(plainText).then(() => alert('综述文本已复制到剪贴板'));
+    });
+
+    // 导出文本（模拟）
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        const content = document.getElementById('generatedText').innerText;
+        const blob = new Blob([content], {type: 'text/plain'});
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = 'evidence_review.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // 模态框关闭
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('detailModal');
+        if (e.target === modal) closeModal();
+    });
+
+    // 初始渲染
+    renderGenerated();
+</script>
+</body>
+</html>

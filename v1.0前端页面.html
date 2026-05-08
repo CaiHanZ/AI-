@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>缺血性脑卒中中医智能证据构建系统 · V1.0</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f5f9f2;
+      color: #1f2a1f;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      padding: 24px;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px -12px rgba(0,32,0,.12);
+      overflow: hidden;
+    }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 20px 32px;
+      border-bottom: 1px solid #e9f0e5;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: #2c6e2f; color: #fff;
+      display: grid; place-items: center; font-size: 20px;
+    }
+    .logo-text {
+      color: #1a3b1a;
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.3;
+      max-width: 300px;
+    }
+    .nav-links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .nav-btn {
+      border: 0;
+      background: transparent;
+      color: #3a5a3a;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 9px 12px;
+    }
+    .nav-btn.active { background: #eef6ed; color: #2c6e2f; }
+    .screen { display: none; padding: 32px; }
+    .screen.active { display: block; }
+    .hero {
+      text-align: center;
+      padding: 36px 0 10px;
+    }
+    .hero h1 {
+      margin: 0 0 14px;
+      color: #1b3d1b;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .hero p {
+      margin: 0 auto 28px;
+      max-width: 780px;
+      color: #557855;
+      line-height: 1.75;
+    }
+    .query-box {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 8px;
+      border: 1px solid #d9e8d5;
+      border-radius: 22px;
+      display: flex;
+      gap: 8px;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(44,110,47,.08);
+    }
+    .query-box input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      padding: 0 16px;
+      min-height: 44px;
+    }
+    .chips, .tag-row, .badge-group, .evidence-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chips { justify-content: center; margin-top: 18px; }
+    .chip, .tag, .badge, .mini-badge {
+      border: 1px solid #dcebd8;
+      border-radius: 999px;
+      color: #416441;
+      background: #f8fbf6;
+      font-size: .78rem;
+      padding: 7px 11px;
+    }
+    .chip { padding: 10px 14px; }
+    .dual-mode {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 34px;
+    }
+    .mode-card, .panel, .filter-panel, .table-card, .graph-shell, .summary-shell {
+      border: 1px solid #e2ece0;
+      border-radius: 24px;
+      background: #fdfffd;
+    }
+    .mode-card { padding: 28px; }
+    .mode-card h3, .section-title, .table-card h2, .graph-head h2, .summary-shell h2 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      color: #1d421f;
+      font-size: 1.08rem;
+    }
+    .mode-card p { color: #597859; line-height: 1.7; }
+    .path-list { list-style: none; padding: 0; margin: 18px 0; display: grid; gap: 12px; }
+    .path-list li { display: grid; gap: 5px; padding-left: 14px; border-left: 3px solid #b8d8b8; }
+    .path-list span { color: #648064; font-size: .88rem; }
+    .btn-primary, .btn-secondary, .btn-outline, .icon-btn, .task-btn {
+      border: 0;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      min-height: 40px;
+      padding: 0 16px;
+    }
+    .btn-primary { background: #2c6e2f; color: #fff; }
+    .btn-secondary { background: #edf6e9; color: #2c6e2f; }
+    .btn-outline { background: #fff; color: #2c6e2f; border: 1px solid #b9d8b5; }
+    .icon-btn { width: 32px; min-height: 32px; padding: 0; background: #eef6ed; color: #2c6e2f; }
+    .icon-btn.danger { color: #bd4b4b; background: #fceeee; }
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 300px 360px minmax(0, 1fr);
+      gap: 20px;
+    }
+    .filter-panel, .panel { padding: 20px; }
+    .filter-grid { display: grid; gap: 14px; margin: 18px 0; }
+    .field { display: grid; gap: 7px; color: #587458; font-size: .82rem; font-weight: 800; }
+    .field select, .table-input, .search-input {
+      border: 1px solid #d6e6d3;
+      border-radius: 14px;
+      background: #fff;
+      color: #203220;
+      outline: 0;
+      padding: 10px 12px;
+    }
+    .panel-header, .toolbar, .step-actions, .graph-head, .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .literature-item {
+      width: 100%;
+      margin-top: 12px;
+      border: 1px solid #e2ece0;
+      border-radius: 18px;
+      background: #fff;
+      display: flex;
+      gap: 12px;
+      text-align: left;
+      padding: 14px;
+    }
+    .literature-item.selected { border-color: #8fbd8c; background: #f2f8ef; }
+    .check-box {
+      width: 22px; height: 22px; border: 1px solid #cfe0cb;
+      border-radius: 8px; display: grid; place-items: center; color: #2c6e2f; flex: 0 0 auto;
+    }
+    .literature-main { display: grid; gap: 7px; min-width: 0; }
+    .literature-main strong { color: #203b20; font-size: .9rem; }
+    .literature-main small, .muted { color: #719171; }
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .evidence-unit {
+      padding: 16px;
+      border: 1px solid #e2ece0;
+      border-radius: 18px;
+      background: #fff;
+    }
+    .unit-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .inline-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: #2c6e2f;
+      background: #eef6ed;
+      font-size: .78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .evidence-unit h3 { margin: 12px 0 6px; color: #1f3a1f; font-size: .95rem; line-height: 1.45; }
+    .evidence-unit p { margin: 0 0 12px; color: #739173; font-size: .82rem; }
+    .unit-fields { display: grid; gap: 7px; color: #4b664b; font-size: .82rem; }
+    .notice {
+      margin-bottom: 16px;
+      border: 1px solid #dbe8d6;
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: #426642;
+      background: #f8fbf6;
+      font-size: .88rem;
+    }
+    .table-card { overflow: hidden; }
+    .card-header { padding: 24px; }
+    .search-box-small {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: min(100%, 360px);
+      padding: 0 12px;
+      border: 1px solid #d6e6d3;
+      border-radius: 18px;
+      background: #fff;
+    }
+    .search-box-small input { width: 100%; border: 0; outline: 0; padding: 10px 0; }
+    .table-container { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    .evidence-table { min-width: 980px; }
+    .evidence-table th {
+      background: #f0f7ec;
+      color: #557355;
+      text-align: left;
+      font-size: .78rem;
+      padding: 14px 12px;
+    }
+    .evidence-table td {
+      border-top: 1px solid #edf3ea;
+      padding: 12px;
+      color: #203420;
+      vertical-align: middle;
+    }
+    .evidence-table tbody tr:nth-child(even) { background: #fdfffd; }
+    .drag-handle { color: #9ebd9b; }
+    .table-input { width: 100%; min-width: 120px; }
+    .wide-input { min-width: 220px; }
+    .action-cell { display: flex; gap: 6px; }
+    .footer-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6f8f6f;
+      background: #fbfdf8;
+      font-size: .82rem;
+      padding: 14px 24px;
+      border-top: 1px solid #e9f0e5;
+    }
+    .footer-note span { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+    .step-actions { justify-content: flex-end; margin-top: 18px; }
+    .graph-shell { position: relative; overflow: hidden; min-height: 650px; }
+    .graph-head { padding: 22px 24px; border-bottom: 1px solid #e9f0e5; }
+    .graph-head p { margin: 8px 0 0; color: #6c8e6c; }
+    .graph-canvas {
+      position: relative;
+      height: 560px;
+      background:
+        linear-gradient(rgba(229,240,225,.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(229,240,225,.6) 1px, transparent 1px),
+        #fbfdf8;
+      background-size: 28px 28px;
+      overflow: hidden;
+    }
+    .node {
+      position: absolute;
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      border: 4px solid #e8f2e6;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      text-align: center;
+      color: #183b1c;
+      font-size: .78rem;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(44,110,47,.14);
+    }
+    .node.disease { width: 116px; height: 116px; background: #2c6e2f; color: #fff; }
+    .node.stage { background: #75a878; color: #fff; }
+    .node.syndrome { background: #f2cf70; }
+    .node.therapy { background: #8fc5a1; }
+    .node.formula { background: #cfe8c9; }
+    .node.outcome { background: #e4b7a0; }
+    .node.study { background: #bad0e8; }
+    .edge {
+      position: absolute;
+      height: 2px;
+      background: #c9dcc4;
+      transform-origin: left center;
+    }
+    .node-detail {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: min(320px, calc(100% - 48px));
+      padding: 18px;
+      border: 1px solid #dcebd8;
+      border-radius: 20px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 14px 30px rgba(0,40,0,.1);
+    }
+    .summary-shell { padding: 24px; display: grid; gap: 20px; }
+    .evidence-summary {
+      border-radius: 20px;
+      padding: 18px;
+      background: #f7fbf4;
+      border: 1px solid #e2ece0;
+    }
+    .summary-title { color: #244924; font-weight: 800; margin-bottom: 12px; }
+    .task-selector { display: flex; flex-wrap: wrap; gap: 10px; }
+    .task-btn { background: #f1f7ee; color: #4d704d; }
+    .task-btn.active { background: #2c6e2f; color: #fff; }
+    .result-area { border: 1px solid #e2ece0; border-radius: 22px; background: #fff; overflow: hidden; }
+    .result-header { padding: 16px 18px; border-bottom: 1px solid #edf3ea; }
+    .result-header h3 { margin: 0; color: #214521; font-size: 1rem; }
+    .generated-text { margin: 0; padding: 20px; color: #253425; line-height: 1.85; }
+    .ref-list { padding: 18px; border-top: 1px solid #edf3ea; background: #fbfdf8; }
+    .ref-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid #e2ece0;
+      border-radius: 16px;
+      background: #fff;
+      color: #375537;
+      text-align: left;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(24,48,24,.32);
+    }
+    .modal-overlay.active { display: grid; }
+    .modal-card {
+      width: min(720px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 24px 60px rgba(0,30,0,.2);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid #e9f0e5;
+    }
+    .modal-header h3 { margin: 0; color: #244624; }
+    .modal-body { padding: 22px; }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .detail-field {
+      border: 1px solid #e2ece0;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      background: #fbfdf8;
+    }
+    .detail-field span { color: #719171; font-size: .78rem; }
+    .source-highlight {
+      display: flex;
+      gap: 12px;
+      border-radius: 18px;
+      padding: 16px;
+      color: #284228;
+      line-height: 1.7;
+      background: #eff6ef;
+    }
+    .site-footer {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      color: #6f8f6f;
+      background: #fbfdf8;
+      font-size: .82rem;
+      padding: 18px 28px;
+      border-top: 1px solid #e9f0e5;
+    }
+    @media (max-width: 1100px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+      .dual-mode, .unit-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      body { padding: 10px; }
+      .dashboard { border-radius: 22px; }
+      .screen, .navbar { padding-left: 18px; padding-right: 18px; }
+      .query-box { flex-direction: column; align-items: stretch; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .footer-note { align-items: flex-start; flex-direction: column; }
+      .footer-note span { margin-left: 0; }
+      .graph-canvas { height: 760px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="navbar">
+      <div class="logo">
+        <div class="logo-icon">脑</div>
+        <div class="logo-text">缺血性脑卒中中医智能证据构建系统</div>
+      </div>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-screen="home">首页</button>
+        <button class="nav-btn" data-screen="search">证据检索</button>
+        <button class="nav-btn" data-screen="edit">证据链编辑</button>
+        <button class="nav-btn" data-screen="graph">知识图谱</button>
+        <button class="nav-btn" data-screen="summary">AI摘要</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home" class="screen active">
+        <div class="hero">
+          <h1>专家证据工作台 · V1.0</h1>
+          <p>围绕缺血性脑卒中中医文献，完成标签检索、证据链编辑、知识图谱查看与受约束AI摘要生成。</p>
+          <div class="query-box">
+            <input id="homeQuestion" type="text" placeholder="例如：恢复期气虚痰瘀证使用补阳还五汤的疗效如何？">
+            <button class="btn-primary" data-go="search">进入精细工作台</button>
+          </div>
+          <div class="chips">
+            <button class="chip">气虚血瘀证常用中成药及NIHSS变化</button>
+            <button class="chip">醒脑开窍针法对 Barthel 指数的影响</button>
+            <button class="chip">恢复期益气活血法的总有效率 Meta 证据</button>
+          </div>
+        </div>
+        <div class="dual-mode">
+          <article class="mode-card">
+            <h3>精细模式 · 手动全程控制</h3>
+            <p>逐层筛选标签、逐篇筛选文献、自由编辑证据链，保留完全控制权，适合严谨科研。</p>
+            <ul class="path-list">
+              <li><strong>精细路径</strong><span>标签筛选 → 文献列表 → 证据表 → 图谱 → 受约束AI生成</span></li>
+              <li><strong>核心优势</strong><span>证据可回溯、可编辑、可复核，减少幻觉风险</span></li>
+            </ul>
+            <button class="btn-outline" data-go="search">开始检索</button>
+          </article>
+          <article class="mode-card">
+            <h3>大众问答入口 · 后续版本</h3>
+            <p>自然语言一框式问答将作为 V2.0 能力扩展；V1.0 先沉淀可追溯证据底座。</p>
+            <ul class="path-list">
+              <li><strong>当前状态</strong><span>保留入口概念，不作为主流程实现</span></li>
+              <li><strong>演进方向</strong><span>问题解析 → 标签转换 → 证据链推荐 → 专家确认</span></li>
+            </ul>
+            <span class="btn-outline">V2.0 规划</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="search" class="screen">
+        <div class="workspace-grid">
+          <aside class="filter-panel">
+            <div class="section-title">标签体系筛选</div>
+            <div class="filter-grid">
+              <label class="field">病程阶段<select id="stage"><option>恢复期</option><option>急性期</option><option>后遗症期</option></select></label>
+              <label class="field">证型<select id="syndrome"><option>气虚痰瘀证</option><option>气虚血瘀证</option><option>风痰阻络证</option><option>痰瘀互结证</option></select></label>
+              <label class="field">治法<select id="therapy"><option>益气活血</option><option>活血通络</option><option>化痰通络</option><option>醒脑开窍</option></select></label>
+              <label class="field">方药/干预<select id="formula"><option>补阳还五汤</option><option>脑心通胶囊</option><option>化痰通络汤</option><option>醒脑开窍针法</option></select></label>
+              <label class="field">疗效指标<select id="outcome"><option>NIHSS</option><option>Barthel</option><option>Fugl-Meyer</option><option>总有效率</option></select></label>
+              <label class="field">研究类型<select id="studyType"><option>不限</option><option>RCT</option><option>系统综述</option><option>队列研究</option></select></label>
+            </div>
+            <button class="btn-primary" style="width:100%" id="runSearch">检索匹配文献</button>
+          </aside>
+          <section class="panel">
+            <div class="panel-header">
+              <div class="section-title">匹配文献</div>
+              <span class="mini-badge" id="literatureCount">4 篇</span>
+            </div>
+            <div id="literatureList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-header">
+              <div class="section-title">结构化证据摘要</div>
+              <button class="btn-primary" id="buildChain">生成证据链</button>
+            </div>
+            <div class="notice" id="searchNotice">已加载缺血性脑卒中专题语料示例。后端接口接入后，此处可替换为真实检索结果。</div>
+            <div class="unit-grid" id="evidencePreview"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="edit" class="screen">
+        <div class="notice">证据链可在前端会话内编辑。接入后端后，“确认证据链”将保存排序、增删改查结果。</div>
+        <section class="table-card">
+          <div class="card-header">
+            <div class="panel-header">
+              <h2>结构化证据链 · 可编辑模式</h2>
+              <div class="toolbar">
+                <div class="search-box-small">
+                  <span>检索</span>
+                  <input id="chainKeyword" type="text" placeholder="在证据链中快速筛选...">
+                </div>
+                <button class="btn-secondary" id="addEvidence">新增证据行</button>
+                <button class="btn-primary" id="saveChain">确认证据链</button>
+              </div>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="evidence-table">
+              <thead>
+                <tr>
+                  <th style="width:40px"></th>
+                  <th>文献ID</th>
+                  <th>证型</th>
+                  <th>干预措施</th>
+                  <th>疗效指标 (关键数值)</th>
+                  <th>研究类型</th>
+                  <th style="width:132px">操作</th>
+                </tr>
+              </thead>
+              <tbody id="chainRows"></tbody>
+            </table>
+          </div>
+          <div class="footer-note">
+            <span>左侧为排序手柄示意；当前版本支持上移、下移、行内编辑、删除和保存。</span>
+            <span>人机协同 · 证据由您掌控</span>
+          </div>
+        </section>
+        <div class="step-actions">
+          <button class="btn-secondary" data-go="search">返回检索</button>
+          <button class="btn-outline" data-go="graph">查看知识图谱</button>
+          <button class="btn-primary" data-go="summary">生成受约束摘要</button>
+        </div>
+      </section>
+
+      <section id="graph" class="screen">
+        <section class="graph-shell">
+          <div class="graph-head">
+            <div>
+              <h2>证型-治法-方药-指标知识图谱</h2>
+              <p>点击节点查看关联证据。此版本用前端静态图谱展示 V1.0 的证据结构。</p>
+            </div>
+            <button class="btn-secondary" id="resetGraph">重置布局</button>
+          </div>
+          <div class="graph-canvas" id="graphCanvas"></div>
+          <aside class="node-detail" id="nodeDetail">
+            <span class="mini-badge">节点详情</span>
+            <h3>缺血性脑卒中</h3>
+            <p>关联证据：RCT-01、RCT-02、SysRev-03、OBS-04</p>
+          </aside>
+        </section>
+        <div class="step-actions">
+          <button class="btn-secondary" data-go="edit">返回证据链</button>
+          <button class="btn-primary" data-go="summary">生成AI摘要</button>
+        </div>
+      </section>
+
+      <section id="summary" class="screen">
+        <section class="summary-shell">
+          <div class="panel-header">
+            <div>
+              <h2>受约束AI生成 · 科研综述</h2>
+              <div class="badge-group" style="margin-top:10px">
+                <span class="badge">基于已确认证据链</span>
+                <span class="badge">可溯源 · 可复核</span>
+              </div>
+            </div>
+          </div>
+          <div class="evidence-summary">
+            <div class="summary-title" id="summaryTitle">当前证据链摘要</div>
+            <div class="evidence-tags" id="summaryTags"></div>
+          </div>
+          <div class="toolbar">
+            <div class="task-selector">
+              <button class="task-btn active" data-task="summary">综述摘要</button>
+              <button class="task-btn" data-task="basis">课题申报证据说明</button>
+              <button class="task-btn" data-task="pattern">证型用药规律总结</button>
+            </div>
+            <button class="btn-secondary" id="generateSummary">重新生成</button>
+          </div>
+          <div class="result-area">
+            <div class="result-header">
+              <h3>生成结果（每段带文献角标）</h3>
+              <button class="btn-secondary" id="copySummary">复制全文</button>
+            </div>
+            <p class="generated-text" id="generatedText"></p>
+            <div class="ref-list">
+              <h4>参考文献追溯</h4>
+              <div id="refItems"></div>
+            </div>
+          </div>
+        </section>
+        <div class="step-actions">
+          <button class="btn-secondary" data-go="edit">返回编辑</button>
+          <button class="btn-outline" data-go="graph">查看图谱</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">共享结构化证据底座（缺血性脑卒中专病库 · 800+核心文献） · 所有生成内容均带可追溯角标</footer>
+  </div>
+
+  <div class="modal-overlay" id="sourceModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">原文回溯</h3>
+        <button class="icon-btn" id="closeModal">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const literature = [
+      { id: "RCT-01", title: "补阳还五汤治疗缺血性卒中恢复期气虚痰瘀证的随机对照研究", journal: "中国中西医结合杂志", year: "2024", tags: ["恢复期","气虚痰瘀证","益气活血","补阳还五汤","NIHSS","RCT"], abstract: "观察组NIHSS评分较对照组降低3.2分，Barthel指数提高18分。" },
+      { id: "RCT-02", title: "脑心通胶囊对缺血性脑卒中气虚血瘀证患者的随机对照研究", journal: "中华中医药杂志", year: "2023", tags: ["恢复期","气虚血瘀证","活血通络","脑心通胶囊","证候积分","RCT"], abstract: "中医证候积分下降幅度优于对照组，血浆黏度降低。" },
+      { id: "SysRev-03", title: "醒脑开窍针法治疗缺血性卒中恢复期疗效的Meta分析", journal: "中国针灸", year: "2025", tags: ["恢复期","气虚痰瘀证","醒脑开窍针法","总有效率","系统综述"], abstract: "针法组总有效率提高，OR=2.34，95%CI 1.52-3.20。" },
+      { id: "OBS-04", title: "化痰通络汤对风痰阻络证脑卒中患者运动功能的前瞻性队列研究", journal: "中医脑病杂志", year: "2024", tags: ["恢复期","风痰阻络证","化痰通络","Fugl-Meyer","队列研究"], abstract: "6个月随访显示Fugl-Meyer评分提高15.2分，mRS 0-2分比例达到42%。" }
+    ];
+
+    let evidence = [
+      { id: "RCT-01", title: literature[0].title, journal: "中国中西医结合杂志 · 2024", syndrome: "气虚痰瘀证", therapy: "益气活血", intervention: "补阳还五汤加减 + 常规治疗", formula: "补阳还五汤", outcome: "NIHSS ↓3.2分；Barthel ↑18分", studyType: "RCT", sourceText: "观察组NIHSS评分较对照组降低3.2分，Barthel指数提高18分，差异具有统计学意义。" },
+      { id: "RCT-02", title: literature[1].title, journal: "中华中医药杂志 · 2023", syndrome: "气虚血瘀证", therapy: "活血通络", intervention: "脑心通胶囊 + 基础治疗", formula: "脑心通胶囊", outcome: "中医证候积分 ↓6.2；血浆黏度 ↓15%", studyType: "RCT", sourceText: "治疗后中医证候积分下降幅度优于对照组，血浆黏度较基线降低15.3%。" },
+      { id: "SysRev-03", title: literature[2].title, journal: "中国针灸 · 2025", syndrome: "气虚痰瘀证", therapy: "醒脑开窍", intervention: "醒脑开窍针法", formula: "针刺方案", outcome: "总有效率 OR=2.34 (95%CI 1.52-3.20)", studyType: "系统综述", sourceText: "Meta分析显示针法组总有效率提高，OR=2.34，95%CI 1.52-3.20。" },
+      { id: "OBS-04", title: literature[3].title, journal: "中医脑病杂志 · 2024", syndrome: "风痰阻络证", therapy: "化痰通络", intervention: "化痰通络汤 + 康复训练", formula: "化痰通络汤", outcome: "Fugl-Meyer ↑15.2；mRS改善率42%", studyType: "队列研究", sourceText: "6个月随访显示Fugl-Meyer评分提高15.2分，mRS 0-2分比例42%。" }
+    ];
+
+    let selectedLiterature = new Set(literature.map(item => item.id));
+    let activeTask = "summary";
+
+    function go(screen) {
+      document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+      document.getElementById(screen).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.screen === screen));
+      if (screen === "graph") renderGraph();
+      if (screen === "summary") renderSummary();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderLiterature() {
+      document.getElementById("literatureCount").textContent = literature.length + " 篇";
+      document.getElementById("literatureList").innerHTML = literature.map(item => `
+        <button class="literature-item ${selectedLiterature.has(item.id) ? "selected" : ""}" data-lit="${item.id}">
+          <span class="check-box">${selectedLiterature.has(item.id) ? "✓" : ""}</span>
+          <span class="literature-main">
+            <strong>${item.id} · ${item.title}</strong>
+            <small>${item.journal} · ${item.year}</small>
+            <span class="tag-row">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</span>
+          </span>
+        </button>
+      `).join("");
+      document.querySelectorAll("[data-lit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.lit;
+          selectedLiterature.has(id) ? selectedLiterature.delete(id) : selectedLiterature.add(id);
+          renderLiterature();
+          renderPreview();
+        });
+      });
+    }
+
+    function renderPreview() {
+      const ids = selectedLiterature.size ? selectedLiterature : new Set(literature.map(item => item.id));
+      const preview = evidence.filter(item => ids.has(item.id));
+      document.getElementById("evidencePreview").innerHTML = preview.map(item => evidenceCard(item)).join("");
+      bindTraceButtons();
+    }
+
+    function evidenceCard(item) {
+      return `
+        <article class="evidence-unit">
+          <div class="unit-top">
+            <span class="inline-badge">${item.id}</span>
+            <button class="icon-btn trace-btn" title="原文回溯" data-trace="${item.id}">↗</button>
+          </div>
+          <h3>${item.title}</h3>
+          <p>${item.journal}</p>
+          <div class="unit-fields">
+            <span>证型：${item.syndrome}</span>
+            <span>治法：${item.therapy}</span>
+            <span>干预：${item.intervention}</span>
+            <span>指标：${item.outcome}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function buildChain() {
+      const ids = selectedLiterature.size ? selectedLiterature : new Set(literature.map(item => item.id));
+      evidence = evidence.filter(item => ids.has(item.id));
+      if (!evidence.length) selectedLiterature = new Set(literature.map(item => item.id));
+      renderChain();
+      go("edit");
+    }
+
+    function renderChain() {
+      const keyword = document.getElementById("chainKeyword")?.value || "";
+      const rows = evidence
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => JSON.stringify(item).includes(keyword));
+      document.getElementById("chainRows").innerHTML = rows.map(({ item, index }) => `
+        <tr>
+          <td class="drag-handle">⋮⋮</td>
+          <td><span class="inline-badge">${item.id}</span></td>
+          <td><input class="table-input" data-edit="${index}:syndrome" value="${item.syndrome}"></td>
+          <td><input class="table-input wide-input" data-edit="${index}:intervention" value="${item.intervention}"></td>
+          <td><input class="table-input wide-input" data-edit="${index}:outcome" value="${item.outcome}"></td>
+          <td><input class="table-input" data-edit="${index}:studyType" value="${item.studyType}"></td>
+          <td class="action-cell">
+            <button class="icon-btn" data-move="${index}:-1">↑</button>
+            <button class="icon-btn" data-move="${index}:1">↓</button>
+            <button class="icon-btn danger" data-delete="${index}">×</button>
+          </td>
+        </tr>
+      `).join("");
+      document.querySelectorAll("[data-edit]").forEach(input => {
+        input.addEventListener("input", () => {
+          const [index, key] = input.dataset.edit.split(":");
+          evidence[Number(index)][key] = input.value;
+        });
+      });
+      document.querySelectorAll("[data-move]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const [index, direction] = btn.dataset.move.split(":").map(Number);
+          const next = index + direction;
+          if (next < 0 || next >= evidence.length) return;
+          [evidence[index], evidence[next]] = [evidence[next], evidence[index]];
+          renderChain();
+        });
+      });
+      document.querySelectorAll("[data-delete]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          evidence.splice(Number(btn.dataset.delete), 1);
+          renderChain();
+        });
+      });
+    }
+
+    function renderGraph() {
+      const canvas = document.getElementById("graphCanvas");
+      const nodes = [
+        { id: "disease", label: "缺血性脑卒中", type: "disease", x: 47, y: 42, refs: evidence.map(e => e.id) },
+        { id: "stage", label: "恢复期", type: "stage", x: 28, y: 42, refs: evidence.map(e => e.id) },
+        { id: "s1", label: "气虚痰瘀证", type: "syndrome", x: 15, y: 22, refs: ["RCT-01","SysRev-03"] },
+        { id: "s2", label: "气虚血瘀证", type: "syndrome", x: 16, y: 62, refs: ["RCT-02"] },
+        { id: "s3", label: "风痰阻络证", type: "syndrome", x: 54, y: 68, refs: ["OBS-04"] },
+        { id: "t1", label: "益气活血", type: "therapy", x: 67, y: 20, refs: ["RCT-01"] },
+        { id: "t2", label: "化痰通络", type: "therapy", x: 76, y: 58, refs: ["OBS-04"] },
+        { id: "f1", label: "补阳还五汤", type: "formula", x: 84, y: 28, refs: ["RCT-01"] },
+        { id: "o1", label: "NIHSS / Barthel", type: "outcome", x: 64, y: 43, refs: ["RCT-01"] },
+        { id: "o2", label: "总有效率 OR", type: "outcome", x: 37, y: 17, refs: ["SysRev-03"] },
+        { id: "study", label: "RCT / 系统综述", type: "study", x: 86, y: 74, refs: ["RCT-01","RCT-02","SysRev-03"] }
+      ];
+      const edges = [["stage","disease"],["s1","stage"],["s2","stage"],["s3","stage"],["s1","t1"],["t1","f1"],["f1","o1"],["s1","o2"],["s3","t2"],["o1","study"],["t2","study"]];
+      canvas.innerHTML = "";
+      edges.forEach(([a, b]) => {
+        const n1 = nodes.find(n => n.id === a);
+        const n2 = nodes.find(n => n.id === b);
+        drawEdge(canvas, n1, n2);
+      });
+      nodes.forEach(node => {
+        const el = document.createElement("button");
+        el.className = "node " + node.type;
+        el.style.left = `calc(${node.x}% - 46px)`;
+        el.style.top = `calc(${node.y}% - 46px)`;
+        el.textContent = node.label;
+        el.addEventListener("click", () => {
+          document.getElementById("nodeDetail").innerHTML = `<span class="mini-badge">${node.type}</span><h3>${node.label}</h3><p>关联证据：${node.refs.join("、") || "暂无"}</p>`;
+        });
+        canvas.appendChild(el);
+      });
+    }
+
+    function drawEdge(canvas, n1, n2) {
+      const rect = canvas.getBoundingClientRect();
+      const x1 = rect.width * n1.x / 100;
+      const y1 = rect.height * n1.y / 100;
+      const x2 = rect.width * n2.x / 100;
+      const y2 = rect.height * n2.y / 100;
+      const length = Math.hypot(x2 - x1, y2 - y1);
+      const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+      const edge = document.createElement("div");
+      edge.className = "edge";
+      edge.style.width = `${length}px`;
+      edge.style.left = `${x1}px`;
+      edge.style.top = `${y1}px`;
+      edge.style.transform = `rotate(${angle}deg)`;
+      canvas.appendChild(edge);
+    }
+
+    function renderSummary() {
+      document.getElementById("summaryTitle").textContent = `当前证据链摘要（${evidence.length}个证据单元）`;
+      document.getElementById("summaryTags").innerHTML = evidence.map(item => `<span class="tag">${item.id}: ${item.syndrome} | ${item.formula} | ${item.outcome}</span>`).join("");
+      const refText = evidence.slice(0, 3).map(item => `【${item.id}】`).join("、");
+      const content = {
+        summary: `多项结构化证据提示，缺血性脑卒中恢复期相关证型以气虚痰瘀证和气虚血瘀证较为集中，益气活血、活血通络及针刺干预均显示出改善神经功能和日常生活能力的趋势 ${refText}。其中补阳还五汤加减与常规治疗联用可降低NIHSS评分并提升Barthel指数，系统综述结果进一步支持针刺方案对总有效率的改善。`,
+        basis: `现有证据已经形成“证型-治法-方药-疗效指标”的可追溯链条，但研究类型、证型粒度和疗效指标仍存在异质性 ${refText}。因此，围绕缺血性脑卒中恢复期构建结构化证据库，有助于提高课题立项时的证据组织效率和原文回溯能力。`,
+        pattern: `当前证据链显示，气虚相关证型多对应益气活血类治法，方药以补阳还五汤、脑心通胶囊为代表；风痰阻络证更偏向化痰通络策略。疗效观察集中于NIHSS、Barthel、Fugl-Meyer和总有效率等指标 ${refText}。`
+      };
+      document.getElementById("generatedText").textContent = content[activeTask];
+      document.getElementById("refItems").innerHTML = evidence.map(item => `<button class="ref-item trace-btn" data-trace="${item.id}"><span class="inline-badge">${item.id}</span><span>${item.title}</span></button>`).join("");
+      bindTraceButtons();
+    }
+
+    function openTrace(id) {
+      const item = evidence.find(e => e.id === id) || evidence[0];
+      document.getElementById("modalTitle").textContent = `原文回溯 · ${item.id}`;
+      document.getElementById("modalBody").innerHTML = `
+        <h4>${item.title}</h4>
+        <p class="muted">${item.journal}</p>
+        <div class="detail-grid">
+          <div class="detail-field"><span>证型</span><strong>${item.syndrome}</strong></div>
+          <div class="detail-field"><span>治法</span><strong>${item.therapy}</strong></div>
+          <div class="detail-field"><span>干预</span><strong>${item.intervention}</strong></div>
+          <div class="detail-field"><span>疗效指标</span><strong>${item.outcome}</strong></div>
+          <div class="detail-field"><span>方药</span><strong>${item.formula}</strong></div>
+          <div class="detail-field"><span>研究类型</span><strong>${item.studyType}</strong></div>
+        </div>
+        <div class="source-highlight"><strong>原文片段：</strong><span>${item.sourceText}</span></div>
+      `;
+      document.getElementById("sourceModal").classList.add("active");
+    }
+
+    function bindTraceButtons() {
+      document.querySelectorAll(".trace-btn").forEach(btn => {
+        btn.onclick = () => openTrace(btn.dataset.trace);
+      });
+    }
+
+    document.querySelectorAll("[data-screen]").forEach(btn => btn.addEventListener("click", () => go(btn.dataset.screen)));
+    document.querySelectorAll("[data-go]").forEach(btn => btn.addEventListener("click", () => go(btn.dataset.go)));
+    document.querySelectorAll(".chip").forEach(chip => chip.addEventListener("click", () => document.getElementById("homeQuestion").value = chip.textContent));
+    document.getElementById("runSearch").addEventListener("click", () => {
+      document.getElementById("searchNotice").textContent = `已按 ${stage.value} / ${syndrome.value} / ${therapy.value} / ${formula.value} 检索，当前显示示例结果。`;
+      renderLiterature();
+      renderPreview();
+    });
+    document.getElementById("buildChain").addEventListener("click", buildChain);
+    document.getElementById("addEvidence").addEventListener("click", () => {
+      evidence.push({ id: `NEW-${String(evidence.length + 1).padStart(2, "0")}`, title: "新增证据单元", journal: "待补充", syndrome: "待编辑", therapy: "待编辑", intervention: "待编辑", formula: "待编辑", outcome: "待编辑", studyType: "待编辑", sourceText: "请补充原文片段。" });
+      renderChain();
+    });
+    document.getElementById("saveChain").addEventListener("click", () => alert("证据链已在当前前端会话中保存。接入后端后这里会调用 updateEvidenceChain 接口。"));
+    document.getElementById("chainKeyword").addEventListener("input", renderChain);
+    document.getElementById("resetGraph").addEventListener("click", renderGraph);
+    document.querySelectorAll("[data-task]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeTask = btn.dataset.task;
+        document.querySelectorAll("[data-task]").forEach(item => item.classList.toggle("active", item === btn));
+        renderSummary();
+      });
+    });
+    document.getElementById("generateSummary").addEventListener("click", renderSummary);
+    document.getElementById("copySummary").addEventListener("click", () => navigator.clipboard && navigator.clipboard.writeText(document.getElementById("generatedText").textContent));
+    document.getElementById("closeModal").addEventListener("click", () => document.getElementById("sourceModal").classList.remove("active"));
+    document.getElementById("sourceModal").addEventListener("click", event => {
+      if (event.target.id === "sourceModal") document.getElementById("sourceModal").classList.remove("active");
+    });
+    window.addEventListener("resize", () => {
+      if (document.getElementById("graph").classList.contains("active")) renderGraph();
+    });
+
+    renderLiterature();
+    renderPreview();
+    renderChain();
+    renderSummary();
+  </script>
+</body>
+</html>
