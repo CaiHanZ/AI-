@@ -174,7 +174,17 @@ a {
   margin-top: 18px;
 }
 
+.chips {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
 .example-chip,
+.chip,
 .soft-tag,
 .tag,
 .mini-badge {
@@ -188,6 +198,30 @@ a {
 .example-chip {
   cursor: pointer;
   padding: 10px 14px;
+}
+
+.chip.example-chip,
+.chip {
+  min-height: 42px;
+  padding: 10px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #dcebd8;
+  border-radius: 999px;
+  background: #f8fbf6;
+  color: #416441;
+  box-shadow: 0 8px 18px rgba(44, 110, 47, 0.06);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.chip.example-chip:hover,
+.chip:hover {
+  border-color: #b9d8b5;
+  background: #eef6ed;
+  color: #2c6e2f;
 }
 
 .soft-tag,
@@ -693,11 +727,19 @@ a {
   font-weight: 800;
   background: #75a878;
   box-shadow: 0 8px 18px rgba(44, 110, 47, 0.14);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .graph-node.selected {
   border-color: #2c6e2f;
   box-shadow: 0 12px 26px rgba(44, 110, 47, 0.2);
+}
+
+.graph-node:active {
+  cursor: grabbing;
+  z-index: 3;
 }
 
 .graph-node.disease {
@@ -723,6 +765,23 @@ a {
 
 .graph-node.study {
   background: #bad0e8;
+}
+
+.site-footer {
+  margin: 18px auto 22px;
+  width: min(760px, calc(100% - 48px));
+  border: 1px solid #e4efe0;
+  border-radius: 18px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #6f8f6f;
+  background: #fbfdf8;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: normal;
 }
 
 .node-detail {

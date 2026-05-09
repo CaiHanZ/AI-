@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type PointerEvent } from 'react';
 import { initialEvidence, literature } from './data';
 import type { EvidenceUnit, Screen } from './types';
 
@@ -12,7 +12,17 @@ const navItems: Array<{ key: Screen; label: string }> = [
   { key: 'summary', label: 'AI摘要' },
 ];
 
-const graphNodes = [
+type GraphNode = {
+  id: string;
+  label: string;
+  type: string;
+  x: number;
+  y: number;
+  size: number;
+  refs: string[];
+};
+
+const defaultGraphNodes: GraphNode[] = [
   { id: 'disease', label: '缺血性脑卒中', type: 'disease', x: 47, y: 42, size: 116, refs: ['RCT-01', 'RCT-02', 'SysRev-03', 'OBS-04'] },
   { id: 'stage', label: '恢复期', type: 'stage', x: 28, y: 42, size: 92, refs: ['RCT-01', 'RCT-02', 'SysRev-03', 'OBS-04'] },
   { id: 's1', label: '气虚痰瘀证', type: 'syndrome', x: 15, y: 22, size: 92, refs: ['RCT-01', 'SysRev-03'] },
@@ -40,6 +50,12 @@ const graphEdges = [
   ['t2', 'study'],
 ];
 
+const exampleQuestions = [
+  { icon: '📄', text: '气虚血瘀证常用中成药及NIHSS变化' },
+  { icon: '🧠', text: '醒脑开窍针法对 Barthel 指数的影响' },
+  { icon: '📊', text: '恢复期益气活血法的总有效率 Meta 证据' },
+];
+
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('home');
   const [question, setQuestion] = useState('');
@@ -49,7 +65,8 @@ export default function Page() {
   const [notice, setNotice] = useState('已加载缺血性脑卒中专题语料示例。后端接口接入后，此处可替换为真实检索结果。');
   const [activeTask, setActiveTask] = useState<'summary' | 'basis' | 'pattern'>('summary');
   const [trace, setTrace] = useState<EvidenceUnit | null>(null);
-  const [selectedNode, setSelectedNode] = useState(graphNodes[0]);
+  const [graphNodes, setGraphNodes] = useState<GraphNode[]>(defaultGraphNodes);
+  const [selectedNode, setSelectedNode] = useState(defaultGraphNodes[0]);
 
   const previewEvidence = useMemo(
     () => initialEvidence.filter((item) => selectedIds.has(item.id)),
@@ -125,6 +142,51 @@ export default function Page() {
     ]);
   }
 
+  function resetGraph() {
+    setGraphNodes(defaultGraphNodes.map((node) => ({ ...node })));
+    setSelectedNode(defaultGraphNodes[0]);
+  }
+
+  function updateGraphNodeFromPointer(nodeId: string, event: PointerEvent<HTMLButtonElement>) {
+    const canvas = event.currentTarget.parentElement;
+    if (!canvas) return;
+    const currentNode = graphNodes.find((node) => node.id === nodeId);
+    if (!currentNode) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const radiusX = ((currentNode.size / 2) / rect.width) * 100;
+    const radiusY = ((currentNode.size / 2) / rect.height) * 100;
+    const nextNode = {
+      ...currentNode,
+      x: Math.min(100 - radiusX, Math.max(radiusX, x)),
+      y: Math.min(100 - radiusY, Math.max(radiusY, y)),
+    };
+
+    setGraphNodes((current) =>
+      current.map((node) => (node.id === nodeId ? { ...node, x: nextNode.x, y: nextNode.y } : node)),
+    );
+    setSelectedNode(nextNode);
+  }
+
+  function startGraphDrag(node: GraphNode, event: PointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setSelectedNode(node);
+    updateGraphNodeFromPointer(node.id, event);
+  }
+
+  function moveGraphDrag(nodeId: string, event: PointerEvent<HTMLButtonElement>) {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    updateGraphNodeFromPointer(nodeId, event);
+  }
+
+  function stopGraphDrag(event: PointerEvent<HTMLButtonElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
+
   return (
     <div className="page-bg">
       <div className="dashboard">
@@ -153,8 +215,11 @@ export default function Page() {
                   <button className="btn-primary" onClick={() => navigate('search')}>进入精细工作台</button>
                 </div>
                 <div className="chips">
-                  {['气虚血瘀证常用中成药及NIHSS变化', '醒脑开窍针法对 Barthel 指数的影响', '恢复期益气活血法的总有效率 Meta 证据'].map((item) => (
-                    <button key={item} className="chip" onClick={() => setQuestion(item)}>{item}</button>
+                  {exampleQuestions.map((item) => (
+                    <button key={item.text} className="chip example-chip" onClick={() => setQuestion(item.text)}>
+                      <span aria-hidden="true">{item.icon}</span>
+                      <span>{item.text}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -281,7 +346,7 @@ export default function Page() {
           {screen === 'graph' && (
             <section className="screen active">
               <section className="graph-shell">
-                <div className="graph-head"><div><h2>证型-治法-方药-指标知识图谱</h2><p>点击节点查看关联证据。此版本用前端图谱展示 V1.0 的证据结构。</p></div><button className="btn-secondary" onClick={() => setSelectedNode(graphNodes[0])}>重置视图</button></div>
+                <div className="graph-head"><div><h2>证型-治法-方药-指标知识图谱</h2><p>点击节点查看关联证据。拖拽节点可调整图谱布局。</p></div><button className="btn-secondary" onClick={resetGraph}>重置视图</button></div>
                 <div className="graph-canvas">
                   <svg className="graph-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
                     {graphEdges.map(([source, target]) => {
@@ -291,7 +356,18 @@ export default function Page() {
                     })}
                   </svg>
                   {graphNodes.map((node) => (
-                    <button key={node.id} className={`graph-node ${node.type} ${selectedNode.id === node.id ? 'selected' : ''}`} style={{ left: `calc(${node.x}% - ${node.size / 2}px)`, top: `calc(${node.y}% - ${node.size / 2}px)`, width: node.size, height: node.size }} onClick={() => setSelectedNode(node)}>{node.label}</button>
+                    <button
+                      key={node.id}
+                      className={`graph-node ${node.type} ${selectedNode.id === node.id ? 'selected' : ''}`}
+                      style={{ left: `calc(${node.x}% - ${node.size / 2}px)`, top: `calc(${node.y}% - ${node.size / 2}px)`, width: node.size, height: node.size }}
+                      onClick={() => setSelectedNode(node)}
+                      onPointerDown={(event) => startGraphDrag(node, event)}
+                      onPointerMove={(event) => moveGraphDrag(node.id, event)}
+                      onPointerUp={stopGraphDrag}
+                      onPointerCancel={stopGraphDrag}
+                    >
+                      {node.label}
+                    </button>
                   ))}
                 </div>
                 <aside className="node-detail"><span className="mini-badge">{selectedNode.type}</span><h3>{selectedNode.label}</h3><p>关联证据：{selectedNode.refs.join('、') || '暂无'}</p></aside>
